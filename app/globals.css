@@ -1,17 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --page-bg: #ffffff;
-  --brand-ink: #000000;
-  --brand-ink-soft: #1a1a1a;
+  --background: #f8f8fb;
+  --foreground: #0b1020;
+  --page-bg: #f7f7fa;
+  --brand-ink: #0b1020;
+  --brand-ink-soft: #1f2433;
   --brand-accent: #5f6ed6;
-  --muted-ink: #5f5f67;
-  --border-soft: rgba(0, 0, 0, 0.08);
-  --brand-surface-strong: rgba(0, 0, 0, 0.05);
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-elevated: rgba(255, 255, 255, 0.96);
+  --muted-ink: #5f677d;
+  --border-soft: rgba(10, 14, 38, 0.12);
+  --brand-surface-strong: rgba(10, 14, 38, 0.07);
+  --surface: rgba(247, 248, 251, 0.86);
+  --surface-elevated: rgba(255, 255, 255, 0.98);
+  --surface-card: #f4f5f9;
+  --section-bg: #f7f7fa;
+  --section-muted-bg: #e6e6eb;
+  --chip-bg: #e0e2e8;
+  --stat-green-bg: #c9efd4;
+  --stat-green-ink: #187441;
+  --stat-blue-bg: #d4e4ff;
+  --stat-blue-ink: #1f53c6;
+  --stat-violet-bg: #e7dcff;
+  --stat-violet-ink: #6f37dc;
   --button-foreground: #ffffff;
   --button-primary-bg: #0a0e26;
   --button-primary-bg-hover: #141a3d;
@@ -20,17 +30,27 @@
 }
 
 :root[data-theme="dark"] {
-  --background: #000000;
-  --foreground: #ffffff;
-  --page-bg: #000000;
-  --brand-ink: #ffffff;
-  --brand-ink-soft: #f2f2f2;
+  --background: #080b14;
+  --foreground: #f2f5ff;
+  --page-bg: #080b14;
+  --brand-ink: #f2f5ff;
+  --brand-ink-soft: #d7dced;
   --brand-accent: #9aa8ff;
-  --muted-ink: #b7b7bf;
-  --border-soft: rgba(255, 255, 255, 0.12);
+  --muted-ink: #aeb4c6;
+  --border-soft: rgba(255, 255, 255, 0.14);
   --brand-surface-strong: rgba(255, 255, 255, 0.08);
-  --surface: rgba(0, 0, 0, 0.82);
-  --surface-elevated: rgba(18, 18, 18, 0.96);
+  --surface: rgba(8, 11, 20, 0.86);
+  --surface-elevated: rgba(20, 24, 37, 0.98);
+  --surface-card: #141a2b;
+  --section-bg: #080b14;
+  --section-muted-bg: #111726;
+  --chip-bg: #2d354b;
+  --stat-green-bg: rgba(70, 194, 122, 0.25);
+  --stat-green-ink: #8ce9b0;
+  --stat-blue-bg: rgba(86, 145, 255, 0.25);
+  --stat-blue-ink: #8cb7ff;
+  --stat-violet-bg: rgba(154, 110, 255, 0.24);
+  --stat-violet-ink: #c4a5ff;
   --button-foreground: #ffffff;
   --button-primary-bg: #0a0e26;
   --button-primary-bg-hover: #141a3d;
@@ -41,8 +61,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 * {
@@ -56,7 +76,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
   transition:
     background-color 180ms ease,
     color 180ms ease;
