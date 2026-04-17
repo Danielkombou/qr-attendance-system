@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AttendX
+
+AttendX is a smart attendance and presence tracking system for organizations, schools, and teams. The goal is to make it easy to track who is present, when they arrived, how long they stayed, and what they accomplished, with minimal friction and reliable records.
+
+For the first version of the product, the system is designed around two user roles:
+
+- `Admin`: manages attendance workflows, monitors records, and oversees users.
+- `User`: checks in, tracks presence, and interacts with assigned attendance features.
+
+## Project Goals
+
+- Track attendance accurately and consistently.
+- Record arrival time and duration of presence.
+- Support lightweight activity or accomplishment tracking.
+- Provide a clean workflow for both administrators and end users.
+- Build a solid foundation that can later expand to more roles and richer reporting.
+
+## Tech Stack
+
+This project is being built with:
+
+- `Next.js` for both frontend and backend application logic
+- `TypeScript` for type-safe development
+- `Tailwind CSS` for styling
+- `PostgreSQL` for persistent data storage
+- `Prisma` as the database toolkit and ORM layer
+- `better-auth` for authentication
+- `Zustand` for client-side state management
+
+Note: `Zustand` is part of the planned architecture, even if some pieces are still being added to the codebase.
+
+## Package Manager
+
+This repository uses `pnpm`, not `npm`.
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables in `.env`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+At minimum, make sure your database connection string is available:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL=your_postgres_connection_string
+```
 
-## Learn More
+3. Start the development server:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Open [http://localhost:3000](http://localhost:3000).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Useful Commands
 
-## Deploy on Vercel
+```bash
+pnpm dev
+pnpm build
+pnpm start
+pnpm lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The project is configured to use PostgreSQL through Prisma. Prisma configuration lives in `prisma.config.ts`, and the Prisma schema is located in `prisma/schema.prisma`.
+
+Common Prisma workflows typically include:
+
+```bash
+pnpm prisma generate
+pnpm prisma migrate dev
+```
+
+## Current Direction
+
+AttendX is being shaped as a dependable attendance platform with a strong focus on:
+
+- simplicity for daily use
+- accurate time and presence tracking
+- maintainable full-stack architecture
+- room for future expansion into reporting, analytics, and broader role support
