@@ -47,8 +47,7 @@ export default function Home() {
               </h1>
 
               <p className="mt-5 max-w-[42rem] text-base leading-7 text-[var(--muted-ink)] sm:mt-6 sm:text-lg sm:leading-8 lg:text-xl">
-                Monitor presence, record arrival times, understand how long
-                people stay, and manage attendance from one clean platform.
+                Monitor presence, track working hours, analyze productivity with ease, and gain insights with AttendX - the modern solution for organizations of all sizes.
               </p>
 
               <div className="mt-8 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4">
