@@ -5,7 +5,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[var(--page-bg)] text-[var(--brand-ink)]">
+    <main
+      className="min-h-screen text-[var(--brand-ink)]"
+      style={{ background: "var(--page-bg)" }}
+    >
       <section className="relative flex min-h-screen w-full flex-col overflow-hidden">
         <div className="hero-glow hero-glow-left" />
         <div className="hero-glow hero-glow-right" />

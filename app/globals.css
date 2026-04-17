@@ -1,34 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f7fb;
-  --foreground: #0a0e26;
-  --page-bg: linear-gradient(180deg, #fcfcfe 0%, #f6f7fb 55%, #eef2f9 100%);
-  --brand-ink: #0a0e26;
-  --brand-ink-soft: #141a3d;
-  --brand-accent: #6471c9;
-  --muted-ink: #66708a;
-  --border-soft: rgba(10, 14, 38, 0.08);
-  --brand-surface-strong: rgba(10, 14, 38, 0.05);
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-elevated: rgba(255, 255, 255, 0.92);
+  --background: #ffffff;
+  --foreground: #000000;
+  --page-bg: #ffffff;
+  --brand-ink: #000000;
+  --brand-ink-soft: #1a1a1a;
+  --brand-accent: #5f6ed6;
+  --muted-ink: #5f5f67;
+  --border-soft: rgba(0, 0, 0, 0.08);
+  --brand-surface-strong: rgba(0, 0, 0, 0.05);
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-elevated: rgba(255, 255, 255, 0.96);
   --button-foreground: #ffffff;
+  --button-primary-bg: #0a0e26;
+  --button-primary-bg-hover: #141a3d;
+  --button-primary-foreground: #ffffff;
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --background: #090d1b;
-  --foreground: #edf1ff;
-  --page-bg: linear-gradient(180deg, #09101f 0%, #0b1121 55%, #0d1428 100%);
-  --brand-ink: #edf1ff;
-  --brand-ink-soft: #cfd8ff;
-  --brand-accent: #90a0ff;
-  --muted-ink: #9fa8c4;
-  --border-soft: rgba(237, 241, 255, 0.1);
-  --brand-surface-strong: rgba(237, 241, 255, 0.08);
-  --surface: rgba(14, 20, 38, 0.72);
-  --surface-elevated: rgba(16, 24, 46, 0.94);
-  --button-foreground: #0a0e26;
+  --background: #000000;
+  --foreground: #ffffff;
+  --page-bg: #000000;
+  --brand-ink: #ffffff;
+  --brand-ink-soft: #f2f2f2;
+  --brand-accent: #9aa8ff;
+  --muted-ink: #b7b7bf;
+  --border-soft: rgba(255, 255, 255, 0.12);
+  --brand-surface-strong: rgba(255, 255, 255, 0.08);
+  --surface: rgba(0, 0, 0, 0.82);
+  --surface-elevated: rgba(18, 18, 18, 0.96);
+  --button-foreground: #ffffff;
+  --button-primary-bg: #0a0e26;
+  --button-primary-bg-hover: #141a3d;
+  --button-primary-foreground: #ffffff;
   color-scheme: dark;
 }
 
