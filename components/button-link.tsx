@@ -18,7 +18,7 @@ export function ButtonLink({
 
   const variantClassName =
     variant === "primary"
-      ? "bg-[var(--brand-ink)] text-white shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-[var(--brand-ink-soft)]"
+      ? "bg-[var(--brand-ink)] text-[var(--button-foreground)] shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-[var(--brand-ink-soft)]"
       : "text-[var(--brand-ink)] hover:bg-[var(--brand-surface-strong)]";
 
   return (

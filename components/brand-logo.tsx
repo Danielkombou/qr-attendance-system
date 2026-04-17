@@ -12,7 +12,7 @@ const sizeStyles = {
     wrapper: "gap-3",
     mark: "h-10 w-10 rounded-xl",
     icon: "h-5 w-5",
-    text: "text-[1.75rem]",
+    text: "text-[1.25rem] sm:text-[1.75rem]",
   },
   md: {
     wrapper: "gap-4",
@@ -36,12 +36,12 @@ export function BrandLogo({
       aria-label="AttendX home"
     >
       <span
-        className={`inline-flex items-center justify-center bg-[var(--brand-ink)] text-white shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
+        className={`inline-flex items-center justify-center bg-[var(--brand-ink)] text-[var(--button-foreground)] shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
       >
         <QrCode className={styles.icon} strokeWidth={2.2} />
       </span>
       <span
-        className={`font-semibold tracking-[-0.04em] text-[var(--brand-ink)] ${styles.text}`}
+        className={`truncate font-semibold tracking-[-0.04em] text-[var(--brand-ink)] ${styles.text}`}
       >
         AttendX
       </span>
