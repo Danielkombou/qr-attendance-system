@@ -14,7 +14,7 @@ export function ButtonLink({
   className = "",
 }: ButtonLinkProps) {
   const baseClassName =
-    "inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition duration-200";
+    "inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition duration-200";
 
   const variantClassName =
     variant === "primary"

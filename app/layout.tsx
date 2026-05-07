@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { JetBrains_Mono, Plus_Jakarta_Sans, Geist } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -27,12 +30,17 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", plusJakartaSans.variable, jetBrainsMono.variable, "font-sans", geist.variable)}
     >
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body
+        className="min-h-full flex flex-col"
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }
