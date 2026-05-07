@@ -63,8 +63,8 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="relative z-10 flex min-h-[calc(100vh-82px)] items-center">
-          <div className="mx-auto flex w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
+        <div className="relative z-10 flex min-h-[calc(82vh-82px)] items-center">
+          <div className="mx-auto flex w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-10 lg:py-14">
             <div className="flex w-full flex-col items-center text-center">
               <p className="mb-5 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-(--brand-accent) sm:mb-6 sm:text-sm">
                 Smart attendance for modern teams
@@ -79,7 +79,7 @@ export default function Home() {
                 AttendX - the modern solution for organizations of all sizes.
               </p>
 
-              <div className="mt-8 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+              <div className="mt-7 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4">
                 <Button
                   render={<Link href="/get-started" />}
                   nativeButton={false}
