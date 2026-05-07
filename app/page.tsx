@@ -6,6 +6,7 @@ import {
   QrCode,
   Shield,
 } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export default function Home() {
       style={{ background: "var(--page-bg)" }}
     >
       <section className="relative flex min-h-screen w-full flex-col overflow-hidden">
-        <header className="relative z-10 w-full bg-white">
+        <header className="relative z-10 w-full border-b border-(--border-soft) bg-white">
           <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-5 lg:px-10">
             <BrandLogo className="min-w-0" />
             <nav className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
@@ -87,14 +88,14 @@ export default function Home() {
                 render={<Link href="/sign-in" />}
                 nativeButton={false}
                 variant="ghost"
-                className="px-3 text-[0.95rem] sm:px-4 sm:text-sm"
+                className="px-5 py-5 text-[0.95rem] sm:px-6 sm:text-sm"
               >
                 Sign In
               </Button>
               <Button
                 render={<Link href="/get-started" />}
                 nativeButton={false}
-                className="bg-(--button-primary-bg) px-3.5 text-[0.95rem] text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover) sm:px-5 sm:text-sm"
+                className="bg-(--button-primary-bg) px-5 py-5 text-[0.95rem] text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover) sm:px-6 sm:text-sm"
               >
                 Get Started
               </Button>
@@ -127,31 +128,28 @@ export default function Home() {
                   Start Free Trial
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button
-                  render={<Link href="/sign-in" />}
-                  nativeButton={false}
-                  variant="ghost"
-                  className="min-w-40 border border-(--border-soft) bg-(--surface) px-6 py-6 text-base"
-                >
-                  Sign In
-                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-t border-(--border-soft) bg-(--section-bg)">
+      <section className="bg-(--section-bg)">
         <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-10 lg:py-20">
           <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Powerful Features
           </h2>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature) => {
+            {features.map((feature, index) => {
               const FeatureIcon = feature.icon;
               return (
-                <article
+                <motion.article
                   key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
+                  viewport={{ once: true, amount: 0.25 }}
                   className="rounded-2xl border border-(--border-soft) bg-(--surface-card) p-5 text-center shadow-[0_18px_40px_-35px_rgba(10,14,38,0.55)]"
                 >
                   <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-xl bg-(--chip-bg) text-(--brand-ink)">
@@ -161,7 +159,7 @@ export default function Home() {
                   <p className="mt-2 text-base leading-7 text-(--muted-ink)">
                     {feature.description}
                   </p>
-                </article>
+                </motion.article>
               );
             })}
           </div>
@@ -213,7 +211,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-(--border-soft) bg-(--section-bg)">
+      <section className="bg-(--section-bg)">
         <div className="mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-6 lg:py-16">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Ready to Transform Your Attendance Tracking?
@@ -232,7 +230,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-(--section-bg)">
+      <footer className="border-t border-(--border-soft) bg-(--section-bg)">
           <div className="mx-auto w-full max-w-7xl px-4 py-6 text-center text-xs text-(--muted-ink) sm:px-6 lg:px-10">
             <p>© 2026 AttendX. All rights reserved.</p>
           </div>

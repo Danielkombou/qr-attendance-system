@@ -13,12 +13,14 @@ const sizeStyles = {
     mark: "h-10 w-10 rounded-xl",
     icon: "h-5 w-5",
     title: "text-[1.25rem] sm:text-[1.75rem]",
+    tagline: "text-[0.7rem] sm:text-xs",
   },
   md: {
     wrapper: "gap-4",
     mark: "h-14 w-14 rounded-2xl",
     icon: "h-7 w-7",
     title: "text-[2rem]",
+    tagline: "text-xs",
   },
 } as const;
 
@@ -40,10 +42,17 @@ export function BrandLogo({
       >
         <QrCode className={styles.icon} strokeWidth={2.2} />
       </span>
-      <span
-        className={`truncate font-semibold tracking-[-0.04em] text-(--brand-ink) ${styles.title}`}
-      >
-        AttendX
+      <span className="flex flex-col leading-tight">
+        <span
+          className={`truncate font-semibold tracking-[-0.04em] text-(--brand-ink) ${styles.title}`}
+        >
+          AttendX
+        </span>
+        <span
+          className={`mt-0.5 truncate text-(--muted-ink) ${styles.tagline}`}
+        >
+          Smart Attendance
+        </span>
       </span>
     </Link>
   );

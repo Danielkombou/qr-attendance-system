@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Plus_Jakarta_Sans, Geist } from "next/font/google";
-import { ThemeScript } from "@/components/theme-script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +31,6 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("h-full", "antialiased", plusJakartaSans.variable, jetBrainsMono.variable, "font-sans", geist.variable)}
     >
-      <head>
-        <ThemeScript />
-      </head>
       <body
         className="min-h-full flex flex-col"
         suppressHydrationWarning
