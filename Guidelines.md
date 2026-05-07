@@ -1,61 +1,30 @@
-**Add your own guidelines here**
-<!--
+# AttendX Engineering Guidelines
 
-System Guidelines
+## General Engineering Rules
+- Keep files focused: target under 200 lines for route files and under 120 lines for UI components when possible.
+- Prefer extracting reusable UI blocks and typed data objects over duplicating markup/classes.
+- Build mobile-first and scale up with breakpoints (`sm`, `md`, `lg`, `xl`).
+- Avoid one-off style hacks; use layout primitives (`flex`, `grid`, `gap`, `max-w`) and semantic spacing.
+- Preserve accessibility: keyboard support, `aria-*` attributes on interactive controls, and sufficient contrast.
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+## Theming and Tokens
+- Use `theme.css` as the source of truth for design tokens.
+- Use semantic Tailwind tokens (`bg-background`, `text-foreground`, `border-border`, `text-muted-foreground`, `bg-primary`) instead of hardcoded colors.
+- Only introduce project-specific CSS variables in `app/globals.css` when semantic tokens cannot express the requirement.
+- Keep light/dark behavior token-driven; do not hardcode mode-specific class lists in components.
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+## shadcn and Component Usage
+- Prefer shadcn components (`Button`, `Card`, etc.) before custom primitives.
+- Wrap repeated action groups into reusable components (example: nav actions).
+- Keep component props typed and minimal; expose behavior through props rather than duplicating components.
 
-# General guidelines
+## Responsive UX Standards
+- Navigation must support both desktop and mobile (hamburger + collapsible menu for small screens).
+- Primary CTAs are full-width on small screens and auto-width on larger screens unless product requirements differ.
+- Prevent text overflow at narrow widths using sensible `max-w`, `clamp`, and line-height values.
+- Validate key breakpoints during implementation: `320`, `375`, `390`, `768`, `1024`, `1280`, `1440`.
 
-Any general rules you want the AI to follow.
-For example:
-
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
-
---------------
-
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
-
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
-
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
-
-You can also create sub sections and add more specific details
-For example:
-
-
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
-
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
-
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
--->
+## Motion and Interaction
+- Use subtle motion only where it improves clarity (entrance, hover affordance).
+- Respect reduced motion preferences (`useReducedMotion`).
+- Keep transitions short and consistent (generally 150-350ms).

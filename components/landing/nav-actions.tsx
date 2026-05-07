@@ -11,7 +11,7 @@ type NavActionsProps = {
 const signInClasses =
   "px-6 py-5 text-sm";
 const getStartedClasses =
-  "bg-(--button-primary-bg) px-6 py-5 text-sm text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover)";
+  "bg-primary px-6 py-5 text-sm text-primary-foreground shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-primary/95";
 
 export function NavActions({ mobile = false, onNavigate }: NavActionsProps) {
   return (
@@ -23,7 +23,7 @@ export function NavActions({ mobile = false, onNavigate }: NavActionsProps) {
         onClick={onNavigate}
         className={
           mobile
-            ? `w-full justify-center border border-(--border-soft) ${signInClasses}`
+            ? `w-full justify-center border border-border ${signInClasses}`
             : signInClasses
         }
       >
