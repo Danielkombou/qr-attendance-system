@@ -5,11 +5,14 @@ import {
   BarChart3,
   Check,
   Clock3,
+  Menu,
   QrCode,
   Shield,
+  X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 
@@ -76,6 +79,8 @@ const stats = [
 ];
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <main
       className="min-h-screen text-(--brand-ink)"
@@ -83,9 +88,21 @@ export default function Home() {
     >
       <section className="relative flex min-h-screen w-full flex-col overflow-hidden">
         <header className="relative z-10 w-full border-b border-(--border-soft) bg-white">
-          <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-5 lg:px-10">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
+            <div className="flex w-full items-center justify-between">
             <BrandLogo className="min-w-0" />
-            <nav className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+              <button
+                type="button"
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
+                onClick={() => setMobileMenuOpen((value) => !value)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-(--border-soft) text-(--brand-ink) sm:hidden"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+
+            <nav className="hidden w-auto items-center justify-end gap-3 sm:flex">
               <Button
                 render={<Link href="/sign-in" />}
                 nativeButton={false}
@@ -102,6 +119,28 @@ export default function Home() {
                 Get Started
               </Button>
             </nav>
+
+            {mobileMenuOpen ? (
+              <nav className="flex w-full flex-col gap-2 sm:hidden">
+                <Button
+                  render={<Link href="/sign-in" />}
+                  nativeButton={false}
+                  variant="ghost"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full justify-center border border-(--border-soft) px-4 py-3 text-[0.9rem]"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  render={<Link href="/get-started" />}
+                  nativeButton={false}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full justify-center bg-(--button-primary-bg) px-4 py-3 text-[0.9rem] text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:bg-(--button-primary-bg-hover)"
+                >
+                  Get Started
+                </Button>
+              </nav>
+            ) : null}
           </div>
         </header>
 
