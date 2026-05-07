@@ -234,20 +234,9 @@ export default function Home() {
       </section>
 
       <footer className="bg-[var(--section-bg)]">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-[var(--muted-ink)] sm:flex-row sm:px-6 lg:px-10">
-          <BrandLogo className="opacity-90" />
-          <p>© 2026 AttendX. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5">
-              <Users className="h-4 w-4" />
-              Teams
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Headset className="h-4 w-4" />
-              Support
-            </span>
+          <div className="mx-auto w-full max-w-7xl px-4 py-8 text-center text-sm text-[var(--muted-ink)] sm:px-6 lg:px-10">
+            <p>© 2026 AttendX. All rights reserved.</p>
           </div>
-        </div>
       </footer>
     </main>
   );

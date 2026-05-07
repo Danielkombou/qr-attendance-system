@@ -1,69 +1,35 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Laptop, Moon, SunMedium } from "lucide-react";
+import { Check, Moon, SunMedium } from "lucide-react";
 
-type ThemePreference = "system" | "light" | "dark";
-type ResolvedTheme = "light" | "dark";
+type ThemePreference = "light" | "dark";
 
 const STORAGE_KEY = "attendx-theme";
 
 const themeOptions: Array<{
   value: ThemePreference;
   label: string;
-  icon: typeof Laptop;
+  icon: typeof SunMedium;
 }> = [
-  { value: "system", label: "System", icon: Laptop },
   { value: "light", label: "Light", icon: SunMedium },
   { value: "dark", label: "Dark", icon: Moon },
 ];
 
-function resolveTheme(theme: ThemePreference): ResolvedTheme {
-  if (theme === "system") {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-
-  return theme;
-}
-
 export function ThemeToggle() {
   const [open, setOpen] = useState(false);
-  const [themePreference, setThemePreference] = useState<ThemePreference>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+  const [themePreference, setThemePreference] = useState<ThemePreference>("light");
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
     const savedTheme = localStorage.getItem(STORAGE_KEY);
     const nextTheme: ThemePreference =
-      savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
-        ? savedTheme
-        : "system";
+      savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
 
-    const applyTheme = (theme: ThemePreference) => {
-      const nextResolvedTheme = resolveTheme(theme);
-      root.dataset.theme = nextResolvedTheme;
-      root.dataset.themePreference = theme;
-      setThemePreference(theme);
-      setResolvedTheme(nextResolvedTheme);
-    };
-
-    applyTheme(nextTheme);
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleSystemChange = () => {
-      if ((root.dataset.themePreference as ThemePreference | undefined) === "system") {
-        applyTheme("system");
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleSystemChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleSystemChange);
-    };
+    root.dataset.theme = nextTheme;
+    root.dataset.themePreference = nextTheme;
+    setThemePreference(nextTheme);
   }, []);
 
   useEffect(() => {
@@ -89,16 +55,14 @@ export function ThemeToggle() {
   }, []);
 
   const setTheme = (theme: ThemePreference) => {
-    const nextResolvedTheme = resolveTheme(theme);
-    document.documentElement.dataset.theme = nextResolvedTheme;
+    document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.themePreference = theme;
     localStorage.setItem(STORAGE_KEY, theme);
     setThemePreference(theme);
-    setResolvedTheme(nextResolvedTheme);
     setOpen(false);
   };
 
-  const ActiveIcon = resolvedTheme === "dark" ? Moon : SunMedium;
+  const ActiveIcon = themePreference === "dark" ? Moon : SunMedium;
 
   return (
     <div className="relative" ref={containerRef}>
