@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   BarChart3,
@@ -139,7 +141,7 @@ export default function Home() {
           <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Powerful Features
           </h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => {
               const FeatureIcon = feature.icon;
               return (
@@ -150,13 +152,15 @@ export default function Home() {
                   whileHover={{ y: -6, scale: 1.01 }}
                   transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
                   viewport={{ once: true, amount: 0.25 }}
-                  className="rounded-2xl border border-(--border-soft) bg-(--surface-card) p-5 text-center shadow-[0_18px_40px_-35px_rgba(10,14,38,0.55)]"
+                  className="rounded-xl border border-(--border-soft) bg-[#f5f5f7] px-6 py-6 text-center shadow-[0_8px_24px_-20px_rgba(10,14,38,0.4)]"
                 >
-                  <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-xl bg-(--chip-bg) text-(--brand-ink)">
-                    <FeatureIcon className="h-5 w-5" />
+                  <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#e3e4e8] text-(--brand-ink)">
+                    <FeatureIcon className="h-[18px] w-[18px]" />
                   </span>
-                  <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-(--muted-ink)">
+                  <h3 className="mt-5 text-[1.9rem] font-semibold tracking-[-0.03em] sm:text-[1.65rem]">
+                    {feature.title}
+                  </h3>
+                  <p className="mx-auto mt-2 max-w-[18rem] text-[1.35rem] leading-[1.3] text-(--muted-ink) sm:text-[1.15rem]">
                     {feature.description}
                   </p>
                 </motion.article>
