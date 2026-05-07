@@ -10,9 +10,9 @@ import {
   Shield,
   X,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 
@@ -80,21 +80,51 @@ const stats = [
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const closeMenuOnDesktop = () => {
+      if (window.innerWidth >= 640) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", closeMenuOnDesktop);
+    return () => window.removeEventListener("resize", closeMenuOnDesktop);
+  }, []);
 
   return (
     <main
       className="min-h-screen text-(--brand-ink)"
       style={{ background: "var(--page-bg)" }}
     >
-      <section className="relative flex min-h-screen w-full flex-col overflow-hidden">
+      <section className="relative w-full overflow-hidden">
         <header className="relative z-10 w-full border-b border-(--border-soft) bg-white">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
-            <div className="flex w-full items-center justify-between">
-            <BrandLogo className="min-w-0" />
+          <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
+            <div className="flex w-full items-center justify-between gap-3">
+              <BrandLogo className="min-w-0" />
+              <nav className="hidden items-center justify-end gap-3 sm:flex">
+                <Button
+                  render={<Link href="/sign-in" />}
+                  nativeButton={false}
+                  variant="ghost"
+                  className="px-5 py-3 text-sm"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  render={<Link href="/get-started" />}
+                  nativeButton={false}
+                  className="bg-(--button-primary-bg) px-6 py-3 text-sm text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover)"
+                >
+                  Get Started
+                </Button>
+              </nav>
               <button
                 type="button"
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
                 onClick={() => setMobileMenuOpen((value) => !value)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-(--border-soft) text-(--brand-ink) sm:hidden"
               >
@@ -102,26 +132,8 @@ export default function Home() {
               </button>
             </div>
 
-            <nav className="hidden w-auto items-center justify-end gap-3 sm:flex">
-              <Button
-                render={<Link href="/sign-in" />}
-                nativeButton={false}
-                variant="ghost"
-                className="px-4 py-3 text-[0.9rem] sm:px-6 sm:py-4 sm:text-sm"
-              >
-                Sign In
-              </Button>
-              <Button
-                render={<Link href="/get-started" />}
-                nativeButton={false}
-                className="bg-(--button-primary-bg) px-4 py-3 text-[0.9rem] text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover) sm:px-6 sm:py-4 sm:text-sm"
-              >
-                Get Started
-              </Button>
-            </nav>
-
             {mobileMenuOpen ? (
-              <nav className="flex w-full flex-col gap-2 sm:hidden">
+              <nav id="mobile-menu" className="mt-3 flex w-full flex-col gap-2 sm:hidden">
                 <Button
                   render={<Link href="/sign-in" />}
                   nativeButton={false}
@@ -144,14 +156,14 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="relative z-10 flex flex-1 items-center">
-          <div className="mx-auto flex w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-10 lg:py-28">
+        <div className="relative z-10 flex min-h-[calc(100vh-82px)] items-center">
+          <div className="mx-auto flex w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
             <div className="flex w-full flex-col items-center text-center">
               <p className="mb-5 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-(--brand-accent) sm:mb-6 sm:text-sm">
                 Smart attendance for modern teams
               </p>
 
-              <h1 className="max-w-5xl text-[clamp(2.2rem,9vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-balance">
+              <h1 className="max-w-5xl text-[clamp(2.1rem,8.5vw,5.25rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-balance">
                 Smart Attendance Tracking Made Simple
               </h1>
 
@@ -176,7 +188,7 @@ export default function Home() {
       </section>
 
       <section className="bg-(--section-bg)">
-        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-10 lg:py-18">
+        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-10 lg:py-20">
           <h2 className="text-center text-2xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Powerful Features
           </h2>
@@ -186,10 +198,14 @@ export default function Home() {
               return (
                 <motion.article
                   key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.06 }}
+                  initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  whileHover={reduceMotion ? undefined : { y: -6, scale: 1.01 }}
+                  transition={
+                    reduceMotion
+                      ? undefined
+                      : { duration: 0.35, ease: "easeOut", delay: index * 0.06 }
+                  }
                   viewport={{ once: true, amount: 0.25 }}
                   className="rounded-xl border border-(--border-soft) bg-[#f5f5f7] px-5 py-6 text-center shadow-[0_8px_24px_-20px_rgba(10,14,38,0.4)] sm:px-6"
                 >
