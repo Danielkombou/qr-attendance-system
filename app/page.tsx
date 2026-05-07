@@ -2,81 +2,18 @@
 
 import {
   ArrowRight,
-  BarChart3,
   Check,
-  Clock3,
   Menu,
-  QrCode,
-  Shield,
   X,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
+import { FeatureCard } from "@/components/landing/feature-card";
+import { NavActions } from "@/components/landing/nav-actions";
+import { features, stats, valuePoints } from "@/components/landing/data";
 import { Button } from "@/components/ui/button";
-
-const features = [
-  {
-    title: "QR Code Check-In",
-    description: "Fast and secure attendance tracking with QR codes.",
-    icon: QrCode,
-  },
-  {
-    title: "Real-Time Tracking",
-    description: "Monitor presence and working hours in real-time.",
-    icon: Clock3,
-  },
-  {
-    title: "Advanced Analytics",
-    description: "Detailed reports and attendance insights at a glance.",
-    icon: BarChart3,
-  },
-  {
-    title: "Role-Based Access",
-    description: "Separate views and actions for employees and admins.",
-    icon: Shield,
-  },
-];
-
-const valuePoints = [
-  "Eliminate manual attendance tracking",
-  "Generate automated reports",
-  "Secure and reliable",
-  "Reduce time theft and buddy punching",
-  "Mobile-friendly interface",
-  "Easy to implement",
-];
-
-const stats = [
-  {
-    value: "98%",
-    label: "Accuracy Rate",
-    detail: "Industry-leading precision",
-    style: {
-      background: "var(--stat-green-bg)",
-      color: "var(--stat-green-ink)",
-    },
-  },
-  {
-    value: "50K+",
-    label: "Active Users",
-    detail: "Trusted by organizations",
-    style: {
-      background: "var(--stat-blue-bg)",
-      color: "var(--stat-blue-ink)",
-    },
-  },
-  {
-    value: "24/7",
-    label: "Support",
-    detail: "Always here to help",
-    style: {
-      background: "var(--stat-violet-bg)",
-      color: "var(--stat-violet-ink)",
-    },
-  },
-];
+import { useReducedMotion } from "motion/react";
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -103,23 +40,9 @@ export default function Home() {
           <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
             <div className="flex w-full items-center justify-between gap-3">
               <BrandLogo className="min-w-0" />
-              <nav className="hidden items-center justify-end gap-3 sm:flex">
-                <Button
-                  render={<Link href="/sign-in" />}
-                  nativeButton={false}
-                  variant="ghost"
-                  className="px-5 py-3 text-sm"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  render={<Link href="/get-started" />}
-                  nativeButton={false}
-                  className="bg-(--button-primary-bg) px-6 py-3 text-sm text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:-translate-y-0.5 hover:bg-(--button-primary-bg-hover)"
-                >
-                  Get Started
-                </Button>
-              </nav>
+              <div className="hidden sm:block">
+                <NavActions />
+              </div>
               <button
                 type="button"
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -133,25 +56,9 @@ export default function Home() {
             </div>
 
             {mobileMenuOpen ? (
-              <nav id="mobile-menu" className="mt-3 flex w-full flex-col gap-2 sm:hidden">
-                <Button
-                  render={<Link href="/sign-in" />}
-                  nativeButton={false}
-                  variant="ghost"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full justify-center border border-(--border-soft) px-4 py-3 text-[0.9rem]"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  render={<Link href="/get-started" />}
-                  nativeButton={false}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full justify-center bg-(--button-primary-bg) px-4 py-3 text-[0.9rem] text-(--button-primary-foreground) shadow-[0_18px_40px_-24px_rgba(10,14,38,0.8)] hover:bg-(--button-primary-bg-hover)"
-                >
-                  Get Started
-                </Button>
-              </nav>
+              <div id="mobile-menu" className="mt-3 sm:hidden">
+                <NavActions mobile onNavigate={() => setMobileMenuOpen(false)} />
+              </div>
             ) : null}
           </div>
         </header>
@@ -193,34 +100,14 @@ export default function Home() {
             Powerful Features
           </h2>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature, index) => {
-              const FeatureIcon = feature.icon;
-              return (
-                <motion.article
-                  key={feature.title}
-                  initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
-                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                  whileHover={reduceMotion ? undefined : { y: -6, scale: 1.01 }}
-                  transition={
-                    reduceMotion
-                      ? undefined
-                      : { duration: 0.35, ease: "easeOut", delay: index * 0.06 }
-                  }
-                  viewport={{ once: true, amount: 0.25 }}
-                  className="rounded-xl border border-(--border-soft) bg-[#f5f5f7] px-5 py-6 text-center shadow-[0_8px_24px_-20px_rgba(10,14,38,0.4)] sm:px-6"
-                >
-                  <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#e3e4e8] text-(--brand-ink)">
-                    <FeatureIcon className="h-[18px] w-[18px]" />
-                  </span>
-                  <h3 className="mt-5 text-[1.45rem] font-semibold tracking-[-0.03em] sm:text-[1.65rem]">
-                    {feature.title}
-                  </h3>
-                  <p className="mx-auto mt-2 max-w-[18rem] text-base leading-[1.35] text-(--muted-ink) sm:text-[1.05rem]">
-                    {feature.description}
-                  </p>
-                </motion.article>
-              );
-            })}
+            {features.map((feature, index) => (
+              <FeatureCard
+                key={feature.title}
+                feature={feature}
+                index={index}
+                reduceMotion={reduceMotion}
+              />
+            ))}
           </div>
         </div>
       </section>
