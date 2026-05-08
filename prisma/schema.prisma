@@ -40,33 +40,36 @@ enum VerificationLevel {
 }
 
 model User {
-  id            String                   @id @default(cuid())
-  name          String
-  email         String                   @unique
-  emailVerified Boolean                  @default(false)
-  image         String?
-  memberships   OrganizationMembership[]
-  joinRequests  OrganizationJoinRequest[]
-  invitations   Invitation[]             @relation("InvitationRecipient")
-  sessions      Session[]
-  accounts      Account[]
-  attendance    AttendanceRecord[]
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
+  id                   String                    @id @default(cuid())
+  name                 String
+  email                String                    @unique
+  emailVerified        Boolean                   @default(false)
+  image                String?
+  memberships          OrganizationMembership[]
+  joinRequests         OrganizationJoinRequest[]
+  reviewedJoinRequests OrganizationJoinRequest[] @relation("JoinRequestReviewer")
+  invitations          Invitation[]              @relation("InvitationRecipient")
+  sentInvitations      Invitation[]              @relation("InvitationInviter")
+  sessions             Session[]
+  accounts             Account[]
+  attendance           AttendanceRecord[]
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
 }
 
 model Organization {
-  id            String                   @id @default(cuid())
-  name          String
-  slug          String                   @unique
-  timezone      String                   @default("UTC")
-  memberships   OrganizationMembership[]
-  joinRequests  OrganizationJoinRequest[]
-  invitations   Invitation[]
-  sites         Site[]
-  attendance    AttendanceRecord[]
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
+  id           String                    @id @default(cuid())
+  name         String
+  slug         String                    @unique
+  timezone     String                    @default("UTC")
+  memberships  OrganizationMembership[]
+  joinRequests OrganizationJoinRequest[]
+  invitations  Invitation[]
+  sites        Site[]
+  qrSessions   DynamicQRSession[]
+  attendance   AttendanceRecord[]
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
 }
 
 model OrganizationMembership {
@@ -93,6 +96,7 @@ model OrganizationJoinRequest {
   reviewedById   String?
   reviewedAt     DateTime?
   user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy     User?             @relation("JoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
@@ -112,6 +116,7 @@ model Invitation {
   invitedById    String
   recipientId    String?
   organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User             @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Restrict)
   recipient      User?            @relation("InvitationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -121,18 +126,18 @@ model Invitation {
 }
 
 model Site {
-  id             String       @id @default(cuid())
+  id             String             @id @default(cuid())
   organizationId String
   name           String
   latitude       Float
   longitude      Float
-  allowedRadiusM Int          @default(120)
-  isActive       Boolean      @default(true)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  allowedRadiusM Int                @default(120)
+  isActive       Boolean            @default(true)
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   attendance     AttendanceRecord[]
   qrSessions     DynamicQRSession[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
   @@index([organizationId, isActive])
 }
@@ -164,16 +169,17 @@ model AttendanceRecord {
 }
 
 model DynamicQRSession {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   organizationId String
   siteId         String
-  tokenHash      String    @unique
-  nonce          String    @unique
+  tokenHash      String       @unique
+  nonce          String       @unique
   issuedAt       DateTime
   expiresAt      DateTime
   usedAt         DateTime?
-  site           Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt      DateTime  @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site           Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
 
   @@index([organizationId, siteId, expiresAt])
 }

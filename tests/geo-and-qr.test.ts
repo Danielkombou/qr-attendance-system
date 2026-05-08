@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import { haversineDistanceMeters } from "@/lib/server/geofence";
 import { createQRToken, verifyQRToken } from "@/lib/server/qr-token";
 

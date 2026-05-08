@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
 import { middleware } from "@/middleware";
 
 function makeRequest(pathname: string, cookie?: string) {
