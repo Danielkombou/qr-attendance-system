@@ -1,5 +1,5 @@
-import { haversineDistanceMeters } from "@/lib/server/geofence";
-import { createQRToken, verifyQRToken } from "@/lib/server/qr-token";
+import { haversineDistanceMeters } from "../lib/server/geofence";
+import { createQRToken, verifyQRToken } from "../lib/server/qr-token";
 
 describe("geofence and qr security primitives", () => {
   it("computes near-zero distance for same coordinates", () => {

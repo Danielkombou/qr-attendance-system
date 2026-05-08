@@ -2,6 +2,12 @@
 
 ## Auth
 - `ALL /api/auth/*`: better-auth handler endpoint (`app/api/auth/[...all]/route.ts`).
+- `POST /api/onboarding/sign-in`
+  - Body: `{ "email": string, "password": string }`
+  - Exchanges credentials through better-auth and sets AttendX org context cookies.
+- `POST /api/onboarding/sign-up`
+  - Body: `{ "name": string, "email": string, "password": string, "organizationSlug"?: string, "joinMessage"?: string }`
+  - Creates account and optionally submits join request.
 
 ## Organization and Onboarding
 - `GET /api/orgs`

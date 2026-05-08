@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { middleware } from "@/middleware";
+import { middleware } from "../middleware";
 
 function makeRequest(pathname: string, cookie?: string) {
   return new NextRequest(new URL(`https://attendx.local${pathname}`), {

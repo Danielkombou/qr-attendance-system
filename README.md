@@ -1,61 +1,75 @@
 # AttendX
 
-AttendX is a smart attendance and presence tracking system for organizations, schools, and teams. The goal is to make it easy to track who is present, when they arrived, how long they stayed, and what they accomplished, with minimal friction and reliable records.
+AttendX is a multi-tenant attendance and presence tracking platform built with the Next.js App Router. It includes separated user/admin dashboard experiences, organization-scoped access controls, and API endpoints for onboarding, attendance, and analytics.
 
-For the first version of the product, the system is designed around two user roles:
+## Implemented Scope
 
-- `Admin`: manages attendance workflows, monitors records, and oversees users.
-- `User`: checks in, tracks presence, and interacts with assigned attendance features.
+### Product Areas
 
-## Project Goals
+- Public landing route and auth entry points (`/`, `/sign-in`, `/get-started`)
+- User app routes (`/dashboard`, `/check-in`, `/team`, `/reports`, `/profile`, `/settings`)
+- Admin routes (`/admin/dashboard`, `/admin/users`)
+- Organization onboarding flow (create org, request access, approve/reject requests, invitations)
+- Attendance flow (check-in/check-out, geofence validation, verification levels)
+- Analytics summaries for dashboard/reporting APIs
+- Dynamic QR session issuance and validation endpoints
 
-- Track attendance accurately and consistently.
-- Record arrival time and duration of presence.
-- Support lightweight activity or accomplishment tracking.
-- Provide a clean workflow for both administrators and end users.
-- Build a solid foundation that can later expand to more roles and richer reporting.
+### Roles
+
+- `Admin`/`Owner`: can manage org-scoped workflows and admin-only APIs
+- `User`: can check in/out and access user dashboard features
 
 ## Tech Stack
 
-This project is being built with:
+- `Next.js` (App Router + Route Handlers)
+- `TypeScript`
+- `Tailwind CSS`
+- `PostgreSQL`
+- `Prisma`
+- `better-auth`
 
-- `Next.js` for both frontend and backend application logic
-- `TypeScript` for type-safe development
-- `Tailwind CSS` for styling
-- `PostgreSQL` for persistent data storage
-- `Prisma` as the database toolkit and ORM layer
-- `better-auth` for authentication
-- `Zustand` for client-side state management
+## Project Structure
 
-Note: `Zustand` is part of the planned architecture, even if some pieces are still being added to the codebase.
-
-## Package Manager
-
-This repository uses `pnpm`, not `npm`.
+- `app/(public)/**` - public marketing/landing pages
+- `app/(auth)/**` - auth-facing pages
+- `app/(app)/**` - authenticated user/admin UI routes
+- `app/api/**` - backend API contracts
+- `components/**` - reusable UI blocks
+- `lib/**` - shared auth, server helpers, and Prisma client wiring
+- `prisma/schema.prisma` - data model and relations
 
 ## Getting Started
 
-1. Install dependencies:
+> This repo is configured for `pnpm`.
+
+1. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-2. Set up environment variables in `.env`.
-
-At minimum, make sure your database connection string is available:
+2. Create `.env` and set required values
 
 ```env
-DATABASE_URL=your_postgres_connection_string
+DATABASE_URL=postgresql://user:password@host:5432/attendx
+BETTER_AUTH_SECRET=replace-with-a-strong-secret
+BETTER_AUTH_URL=http://localhost:3000
+QR_TOKEN_SECRET=replace-with-a-strong-secret
 ```
 
-3. Start the development server:
+3. Apply Prisma migrations
+
+```bash
+npx prisma migrate dev
+```
+
+4. Start development server
 
 ```bash
 pnpm dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000).
+5. Open [http://localhost:3000](http://localhost:3000)
 
 ## Useful Commands
 
@@ -64,24 +78,33 @@ pnpm dev
 pnpm build
 pnpm start
 pnpm lint
+npx prisma format
+npx prisma validate
+npx prisma migrate dev
 ```
 
-## Database
+## API Surface (Current)
 
-The project is configured to use PostgreSQL through Prisma. Prisma configuration lives in `prisma.config.ts`, and the Prisma schema is located in `prisma/schema.prisma`.
+- `app/api/auth/[...all]/route.ts`
+- `app/api/orgs/route.ts`
+- `app/api/orgs/[orgId]/join-requests/route.ts`
+- `app/api/orgs/[orgId]/join-requests/[requestId]/route.ts`
+- `app/api/orgs/[orgId]/invitations/route.ts`
+- `app/api/onboarding/request-access/route.ts`
+- `app/api/attendance/check-in/route.ts`
+- `app/api/attendance/check-out/route.ts`
+- `app/api/dashboard/user/route.ts`
+- `app/api/dashboard/admin/route.ts`
+- `app/api/analytics/summary/route.ts`
+- `app/api/qr/session/route.ts`
+- `app/api/qr/validate/route.ts`
 
-Common Prisma workflows typically include:
+## Data Integrity Notes
 
-```bash
-pnpm prisma generate
-pnpm prisma migrate dev
-```
+The schema enforces organization-scoped referential integrity, including:
 
-## Current Direction
+- `Invitation.invitedById -> User.id`
+- `OrganizationJoinRequest.reviewedById -> User.id`
+- `DynamicQRSession.organizationId -> Organization.id`
 
-AttendX is being shaped as a dependable attendance platform with a strong focus on:
-
-- simplicity for daily use
-- accurate time and presence tracking
-- maintainable full-stack architecture
-- room for future expansion into reporting, analytics, and broader role support
+These are captured in Prisma relations and migrations under `prisma/migrations/**`.

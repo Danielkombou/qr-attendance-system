@@ -1,5 +1,4 @@
-import { MembershipRole } from "@prisma/client";
-import { PrismaClient } from "@prisma/client";
+const { MembershipRole, PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
