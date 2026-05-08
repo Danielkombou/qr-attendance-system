@@ -1,4 +1,4 @@
-import { AttendanceStatus } from "@prisma/client";
+import { VerificationLevel } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         recent.length === 0
           ? 0
           : Math.round(
-              (recent.filter((row) => row.status !== AttendanceStatus.REVIEW).length /
+              (recent.filter((row) => row.verificationLevel !== VerificationLevel.REVIEW).length /
                 recent.length) *
                 100,
             );
