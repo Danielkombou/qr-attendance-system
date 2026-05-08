@@ -37,7 +37,7 @@ export async function POST(
 
   const { orgId } = await params;
   const body = await request.json().catch(() => null);
-  if (!body?.message && body?.message !== "") {
+  if (typeof body?.message !== "string" || body.message.trim().length === 0) {
     return badRequest("message is required");
   }
 

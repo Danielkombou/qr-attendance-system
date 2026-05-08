@@ -38,18 +38,18 @@ export function BrandLogo({
       aria-label="AttendX home"
     >
       <span
-        className={`inline-flex items-center justify-center bg-(--brand-ink) text-(--button-foreground) shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
+        className={`inline-flex items-center justify-center bg-[var(--brand-ink)] text-[var(--button-foreground)] shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
       >
         <QrCode className={styles.icon} strokeWidth={2.2} />
       </span>
       <span className="flex flex-col leading-tight">
         <span
-          className={`truncate font-semibold tracking-[-0.04em] text-(--brand-ink) ${styles.title}`}
+          className={`truncate font-semibold tracking-[-0.04em] text-[var(--brand-ink)] ${styles.title}`}
         >
           AttendX
         </span>
         <span
-          className={`mt-0.5 truncate text-(--muted-ink) ${styles.tagline}`}
+          className={`mt-0.5 truncate text-[var(--muted-ink)] ${styles.tagline}`}
         >
           Smart Attendance
         </span>
