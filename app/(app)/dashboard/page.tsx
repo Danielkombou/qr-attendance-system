@@ -1,4 +1,5 @@
 import { ArrowUpRight, Clock3, TrendingUp, Users } from "lucide-react";
+import { ActivityList } from "@/components/dashboard/activity-list";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 
@@ -9,9 +10,9 @@ const presentUsers = [
 ];
 
 const recentActivity = [
-  { initials: "SJ", name: "Sarah Johnson", action: "Checked In", time: "08:45 AM", dot: "bg-emerald-500" },
-  { initials: "MC", name: "Mike Chen", action: "Checked Out", time: "05:30 PM", dot: "bg-amber-500" },
-  { initials: "ED", name: "Emily Davis", action: "Checked In", time: "09:02 AM", dot: "bg-emerald-500" },
+  { id: "sj-in", initials: "SJ", name: "Sarah Johnson", action: "Checked In", time: "08:45 AM", dotClassName: "bg-emerald-500" },
+  { id: "mc-out", initials: "MC", name: "Mike Chen", action: "Checked Out", time: "05:30 PM", dotClassName: "bg-amber-500" },
+  { id: "ed-in", initials: "ED", name: "Emily Davis", action: "Checked In", time: "09:02 AM", dotClassName: "bg-emerald-500" },
 ];
 
 export default function UserDashboardPage() {
@@ -53,25 +54,7 @@ export default function UserDashboardPage() {
         </PanelCard>
 
         <PanelCard title="Recent Activity">
-          <ul className="divide-y divide-border">
-            {recentActivity.map((entry) => (
-              <li key={`${entry.name}-${entry.action}`} className="flex items-center justify-between py-3">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold">
-                    {entry.initials}
-                  </span>
-                  <span>
-                    <span className="block font-medium">{entry.name}</span>
-                    <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                      {entry.action}
-                      <span className={`h-2 w-2 rounded-full ${entry.dot}`} />
-                    </span>
-                  </span>
-                </div>
-                <span className="text-sm text-muted-foreground">{entry.time}</span>
-              </li>
-            ))}
-          </ul>
+          <ActivityList items={recentActivity} />
         </PanelCard>
       </section>
     </div>
