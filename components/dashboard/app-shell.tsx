@@ -1,0 +1,54 @@
+"use client";
+
+import { Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Sidebar } from "@/components/dashboard/sidebar";
+import type { DashboardNavItem } from "@/components/dashboard/navigation";
+
+type AppShellProps = {
+  items: DashboardNavItem[];
+  children: React.ReactNode;
+};
+
+export function AppShell({ items, children }: AppShellProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar items={items} />
+      <div className="flex min-h-screen flex-1 flex-col">
+        <header className="border-b border-border bg-background px-4 py-3 lg:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMobileOpen((value) => !value)}
+            className="gap-2"
+          >
+            <Menu className="h-4 w-4" />
+            Menu
+          </Button>
+          {mobileOpen ? (
+            <nav className="mt-3 grid gap-2">
+              {items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          ) : null}
+        </header>
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+      </div>
+    </div>
+  );
+}
