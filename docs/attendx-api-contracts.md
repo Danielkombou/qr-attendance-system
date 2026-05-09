@@ -39,11 +39,11 @@
 
 ## Attendance
 - `POST /api/attendance/check-in`
-  - Body: `{ "siteId": string, "latitude": number, "longitude": number }`
+  - Body: `{ "siteId": string, "latitude": number, "longitude": number, "plannedTasks": string }`
   - Returns check-in record + geofence result.
 
 - `POST /api/attendance/check-out`
-  - Body: `{ "latitude": number, "longitude": number }`
+  - Body: `{ "latitude": number, "longitude": number, "completedTasks": string }`
   - Closes active check-in and computes worked minutes.
 
 ## Dashboard

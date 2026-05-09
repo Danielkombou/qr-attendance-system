@@ -9,6 +9,7 @@ import { PanelCard } from "@/components/dashboard/panel-card";
 export default function CheckInPage() {
   const [plannedTasks, setPlannedTasks] = useState("");
   const [completedTasks, setCompletedTasks] = useState("");
+  const [siteId, setSiteId] = useState("");
   const [submittingCheckIn, setSubmittingCheckIn] = useState(false);
   const [submittingCheckOut, setSubmittingCheckOut] = useState(false);
   const [message, setMessage] = useState("");
@@ -50,7 +51,7 @@ export default function CheckInPage() {
     try {
       const { latitude, longitude } = await getCoordinates();
       await axios.post("/api/attendance/check-in", {
-        siteId: "default",
+        siteId: siteId.trim(),
         latitude,
         longitude,
         plannedTasks: plannedTasks.trim(),
@@ -101,7 +102,7 @@ export default function CheckInPage() {
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
           <div className="flex flex-col items-center">
             <div className="rounded-2xl border border-border bg-background p-8">
-              <div className="h-44 w-44 rounded-md bg-[linear-gradient(90deg,#000_50%,transparent_50%),linear-gradient(#000_50%,transparent_50%)] bg-[length:24px_24px] bg-repeat opacity-90" />
+              <div className="h-44 w-44 rounded-md bg-[linear-gradient(90deg,#000_50%,transparent_50%),linear-gradient(#000_50%,transparent_50%)] bg-size-[24px_24px] bg-repeat opacity-90" />
             </div>
             <p className="mt-5 text-sm text-muted-foreground">Your Code</p>
             <p className="text-[2rem] font-semibold tracking-[0.04em]">USER-12345</p>
@@ -122,6 +123,15 @@ export default function CheckInPage() {
           </PanelCard>
           <PanelCard title="Quick Actions">
             <label className="mb-3 block space-y-1.5">
+              <span className="text-sm font-medium">Site ID</span>
+              <input
+                value={siteId}
+                onChange={(event) => setSiteId(event.target.value)}
+                className="h-11 w-full rounded-lg border border-border bg-input-background px-3"
+                placeholder="Paste your site ID"
+              />
+            </label>
+            <label className="mb-3 block space-y-1.5">
               <span className="text-sm font-medium">What are you planning to work on today?</span>
               <textarea
                 rows={3}
@@ -133,7 +143,7 @@ export default function CheckInPage() {
             </label>
             <Button
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingCheckIn || !plannedTasks.trim()}
+              disabled={submittingCheckIn || !siteId.trim() || !plannedTasks.trim()}
               onClick={handleCheckIn}
             >
               <CircleCheckBig className="h-4 w-4" />
