@@ -1,4 +1,5 @@
 import { JoinRequestStatus } from "@prisma/client";
+import axios, { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -22,28 +23,41 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = request.nextUrl.origin;
-  const authResponse = await fetch(`${origin}/api/auth/sign-up/email`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      cookie: request.headers.get("cookie") ?? "",
-    },
-    body: JSON.stringify({
-      name,
-      email,
-      password,
-      rememberMe: true,
-    }),
-  });
+  let signUpData: BetterAuthSignUpResponse;
+  try {
+    const authResponse = await axios.post<BetterAuthSignUpResponse>(
+      `${origin}/api/auth/sign-up/email`,
+      {
+        name,
+        email,
+        password,
+        rememberMe: true,
+      },
+      {
+        headers: {
+          "content-type": "application/json",
+          cookie: request.headers.get("cookie") ?? "",
+        },
+        validateStatus: () => true,
+      },
+    );
 
-  if (!authResponse.ok) {
+    if (authResponse.status < 200 || authResponse.status >= 300) {
+      return NextResponse.json(
+        { error: "Unable to create account" },
+        { status: authResponse.status },
+      );
+    }
+
+    signUpData = authResponse.data;
+  } catch (error) {
+    const status = error instanceof AxiosError ? (error.response?.status ?? 500) : 500;
     return NextResponse.json(
       { error: "Unable to create account" },
-      { status: authResponse.status },
+      { status },
     );
   }
 
-  const signUpData = (await authResponse.json()) as BetterAuthSignUpResponse;
   const userId = signUpData.user?.id;
   if (!userId) {
     return NextResponse.json({ error: "Sign up failed" }, { status: 500 });

@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum MembershipRole {
@@ -158,6 +157,8 @@ model AttendanceRecord {
   checkOutLng       Float?
   verificationLevel VerificationLevel @default(REVIEW)
   confidenceScore   Int               @default(0)
+  plannedTasks      String?
+  completedTasks    String?
   notes             String?
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)

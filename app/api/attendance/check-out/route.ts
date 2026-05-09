@@ -9,11 +9,12 @@ export async function POST(request: NextRequest) {
   if (error || !context) return error;
 
   const body = await request.json().catch(() => null);
+  const completedTasks = body?.completedTasks as string | undefined;
   const latitude = Number(body?.latitude);
   const longitude = Number(body?.longitude);
 
-  if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
-    return badRequest("latitude and longitude are required");
+  if (Number.isNaN(latitude) || Number.isNaN(longitude) || !completedTasks?.trim()) {
+    return badRequest("latitude, longitude, and completedTasks are required");
   }
 
   const activeSession = await prisma.attendanceRecord.findFirst({
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       checkOutLat: latitude,
       checkOutLng: longitude,
       workedMinutes,
+      completedTasks: completedTasks.trim(),
     },
   });
 

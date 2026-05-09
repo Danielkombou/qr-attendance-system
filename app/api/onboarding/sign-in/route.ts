@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { MembershipRole } from "@prisma/client";
+import axios, { AxiosError } from "axios";
 import { prisma } from "@/lib/prisma";
 import { badRequest } from "@/lib/server/api-utils";
 import { applyAttendxSessionCookies } from "@/lib/server/session-cookies";
@@ -20,27 +21,37 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = request.nextUrl.origin;
-  const authResponse = await fetch(`${origin}/api/auth/sign-in/email`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      cookie: request.headers.get("cookie") ?? "",
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      rememberMe: true,
-    }),
-  });
-
-  if (!authResponse.ok) {
-    return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: authResponse.status },
+  let signInData: BetterAuthSignInResponse;
+  try {
+    const authResponse = await axios.post<BetterAuthSignInResponse>(
+      `${origin}/api/auth/sign-in/email`,
+      {
+        email,
+        password,
+        rememberMe: true,
+      },
+      {
+        headers: {
+          "content-type": "application/json",
+          cookie: request.headers.get("cookie") ?? "",
+        },
+        validateStatus: () => true,
+      },
     );
+
+    if (authResponse.status < 200 || authResponse.status >= 300) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: authResponse.status },
+      );
+    }
+
+    signInData = authResponse.data;
+  } catch (error) {
+    const status = error instanceof AxiosError ? (error.response?.status ?? 500) : 500;
+    return NextResponse.json({ error: "Invalid credentials" }, { status });
   }
 
-  const signInData = (await authResponse.json()) as BetterAuthSignInResponse;
   const userId = signInData.user?.id;
   if (!userId) {
     return NextResponse.json({ error: "Sign in failed" }, { status: 500 });

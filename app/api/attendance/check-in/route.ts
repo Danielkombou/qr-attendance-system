@@ -11,11 +11,12 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json().catch(() => null);
   const siteId = body?.siteId as string | undefined;
+  const plannedTasks = body?.plannedTasks as string | undefined;
   const latitude = Number(body?.latitude);
   const longitude = Number(body?.longitude);
 
-  if (!siteId || Number.isNaN(latitude) || Number.isNaN(longitude)) {
-    return badRequest("siteId, latitude, and longitude are required");
+  if (!siteId || Number.isNaN(latitude) || Number.isNaN(longitude) || !plannedTasks?.trim()) {
+    return badRequest("siteId, latitude, longitude, and plannedTasks are required");
   }
 
   const activeSession = await prisma.attendanceRecord.findFirst({
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
       checkInLng: longitude,
       verificationLevel: insideFence ? VerificationLevel.VERIFIED : VerificationLevel.REVIEW,
       confidenceScore: insideFence ? 95 : 45,
+      plannedTasks: plannedTasks.trim(),
     },
   });
 

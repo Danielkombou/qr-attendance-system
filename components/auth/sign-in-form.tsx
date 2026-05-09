@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import axios, { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 
 export function SignInForm() {
@@ -17,20 +18,20 @@ export function SignInForm() {
     setError("");
 
     try {
-      const response = await fetch("/api/onboarding/sign-in", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const payload = (await response.json()) as { error?: string; redirectTo?: string };
-      if (!response.ok) {
-        setError(payload.error ?? "Unable to sign in");
-        return;
-      }
+      const response = await axios.post<{ error?: string; redirectTo?: string }>(
+        "/api/onboarding/sign-in",
+        { email, password },
+      );
+      const payload = response.data;
       router.push(payload.redirectTo ?? "/dashboard");
       router.refresh();
-    } catch {
-      setError("Unexpected sign in error.");
+    } catch (error) {
+      const fallback = "Unexpected sign in error.";
+      if (error instanceof AxiosError) {
+        setError((error.response?.data as { error?: string } | undefined)?.error ?? fallback);
+      } else {
+        setError(fallback);
+      }
     } finally {
       setSubmitting(false);
     }

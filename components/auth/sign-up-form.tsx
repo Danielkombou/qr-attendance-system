@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import axios, { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 
 export function SignUpForm() {
@@ -20,26 +21,22 @@ export function SignUpForm() {
     setError("");
 
     try {
-      const response = await fetch("/api/onboarding/sign-up", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      await axios.post("/api/onboarding/sign-up", {
           name,
           email,
           password,
           organizationSlug: organizationSlug.trim() || undefined,
           joinMessage: joinMessage.trim() || undefined,
-        }),
       });
-      const payload = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        setError(payload.error ?? "Unable to create account");
-        return;
-      }
       router.push("/sign-in");
       router.refresh();
-    } catch {
-      setError("Unexpected sign up error.");
+    } catch (error) {
+      const fallback = "Unexpected sign up error.";
+      if (error instanceof AxiosError) {
+        setError((error.response?.data as { error?: string } | undefined)?.error ?? fallback);
+      } else {
+        setError(fallback);
+      }
     } finally {
       setSubmitting(false);
     }
