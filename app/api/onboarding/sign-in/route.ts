@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { MembershipRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { badRequest } from "@/lib/server/api-utils";
 import { applyAttendxSessionCookies } from "@/lib/server/session-cookies";
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({
     ok: true,
     redirectTo:
-      membership.role === "ADMIN" || membership.role === "OWNER"
+      membership.role === MembershipRole.ADMIN ||
+      membership.role === MembershipRole.OWNER
         ? "/admin/dashboard"
         : "/dashboard",
   });

@@ -100,7 +100,7 @@ export function SignUpForm() {
         />
       </label>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button className="h-11 w-full" disabled={submitting}>
+      <Button type="submit" className="h-11 w-full" disabled={submitting}>
         {submitting ? "Creating..." : "Create Account"}
       </Button>
     </form>

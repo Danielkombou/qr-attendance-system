@@ -64,7 +64,7 @@ export function SignInForm() {
         />
       </label>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button className="h-11 w-full" disabled={submitting}>
+      <Button type="submit" className="h-11 w-full" disabled={submitting}>
         {submitting ? "Signing In..." : "Sign In"}
       </Button>
     </form>
