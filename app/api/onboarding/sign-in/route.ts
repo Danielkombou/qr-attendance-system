@@ -1,15 +1,12 @@
+import axios, { AxiosError } from "axios";
+import { Role } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { MembershipRole } from "@prisma/client";
-import axios, { AxiosError } from "axios";
 import { prisma } from "@/lib/prisma";
 import { badRequest } from "@/lib/server/api-utils";
 import { applyAttendxSessionCookies } from "@/lib/server/session-cookies";
 
-type BetterAuthSignInResponse = {
-  user?: { id: string };
-  token?: string;
-};
+type SignInResult = { user?: { id: string } };
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -20,16 +17,11 @@ export async function POST(request: NextRequest) {
     return badRequest("email and password are required");
   }
 
-  const origin = request.nextUrl.origin;
-  let signInData: BetterAuthSignInResponse;
+  let signIn: SignInResult;
   try {
-    const authResponse = await axios.post<BetterAuthSignInResponse>(
-      `${origin}/api/auth/sign-in/email`,
-      {
-        email,
-        password,
-        rememberMe: true,
-      },
+    const response = await axios.post<SignInResult>(
+      `${request.nextUrl.origin}/api/auth/sign-in/email`,
+      { email, password, rememberMe: true },
       {
         headers: {
           "content-type": "application/json",
@@ -39,50 +31,32 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    if (authResponse.status < 200 || authResponse.status >= 300) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: authResponse.status },
-      );
+    if (response.status < 200 || response.status >= 300) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: response.status });
     }
 
-    signInData = authResponse.data;
+    signIn = response.data;
   } catch (error) {
     const status = error instanceof AxiosError ? (error.response?.status ?? 500) : 500;
     return NextResponse.json({ error: "Invalid credentials" }, { status });
   }
 
-  const userId = signInData.user?.id;
+  const userId = signIn.user?.id;
   if (!userId) {
     return NextResponse.json({ error: "Sign in failed" }, { status: 500 });
   }
 
-  const membership = await prisma.organizationMembership.findFirst({
-    where: { userId, isActive: true },
-    orderBy: { createdAt: "asc" },
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
   });
 
-  if (!membership) {
-    return NextResponse.json(
-      { error: "No active organization membership found for this user" },
-      { status: 403 },
-    );
-  }
-
+  const role = user?.role ?? Role.USER;
   const response = NextResponse.json({
     ok: true,
-    redirectTo:
-      membership.role === MembershipRole.ADMIN ||
-      membership.role === MembershipRole.OWNER
-        ? "/admin/dashboard"
-        : "/dashboard",
+    redirectTo: role === Role.ADMIN ? "/admin/dashboard" : "/dashboard",
   });
 
-  applyAttendxSessionCookies(response, {
-    userId,
-    organizationId: membership.organizationId,
-    role: membership.role,
-  });
-
+  applyAttendxSessionCookies(response, { userId, role });
   return response;
 }

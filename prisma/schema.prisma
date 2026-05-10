@@ -6,184 +6,63 @@ datasource db {
   provider = "postgresql"
 }
 
-enum MembershipRole {
-  OWNER
+enum Role {
+  USER
   ADMIN
-  MANAGER
-  EMPLOYEE
-}
-
-enum JoinRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  REVOKED
-  EXPIRED
 }
 
 enum AttendanceStatus {
   CHECKED_IN
   CHECKED_OUT
-  REVIEW
-  REJECTED
-}
-
-enum VerificationLevel {
-  VERIFIED
-  REVIEW
-  REJECTED
 }
 
 model User {
-  id                   String                    @id @default(cuid())
-  name                 String
-  email                String                    @unique
-  emailVerified        Boolean                   @default(false)
-  image                String?
-  memberships          OrganizationMembership[]
-  joinRequests         OrganizationJoinRequest[]
-  reviewedJoinRequests OrganizationJoinRequest[] @relation("JoinRequestReviewer")
-  invitations          Invitation[]              @relation("InvitationRecipient")
-  sentInvitations      Invitation[]              @relation("InvitationInviter")
-  sessions             Session[]
-  accounts             Account[]
-  attendance           AttendanceRecord[]
-  createdAt            DateTime                  @default(now())
-  updatedAt            DateTime                  @updatedAt
-}
-
-model Organization {
-  id           String                    @id @default(cuid())
-  name         String
-  slug         String                    @unique
-  timezone     String                    @default("UTC")
-  memberships  OrganizationMembership[]
-  joinRequests OrganizationJoinRequest[]
-  invitations  Invitation[]
-  sites        Site[]
-  qrSessions   DynamicQRSession[]
-  attendance   AttendanceRecord[]
-  createdAt    DateTime                  @default(now())
-  updatedAt    DateTime                  @updatedAt
-}
-
-model OrganizationMembership {
-  id             String         @id @default(cuid())
-  userId         String
-  organizationId String
-  role           MembershipRole @default(EMPLOYEE)
-  isActive       Boolean        @default(true)
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-
-  @@unique([userId, organizationId])
-  @@index([organizationId, role])
-}
-
-model OrganizationJoinRequest {
-  id             String            @id @default(cuid())
-  userId         String
-  organizationId String
-  status         JoinRequestStatus @default(PENDING)
-  message        String?
-  reviewedById   String?
-  reviewedAt     DateTime?
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviewedBy     User?             @relation("JoinRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
-  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-
-  @@index([organizationId, status])
-  @@index([userId, status])
-}
-
-model Invitation {
-  id             String           @id @default(cuid())
-  organizationId String
-  email          String
-  role           MembershipRole   @default(EMPLOYEE)
-  token          String           @unique
-  status         InvitationStatus @default(PENDING)
-  expiresAt      DateTime
-  invitedById    String
-  recipientId    String?
-  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  invitedBy      User             @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: Restrict)
-  recipient      User?            @relation("InvitationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  @@index([organizationId, status])
-  @@index([email, status])
-}
-
-model Site {
-  id             String             @id @default(cuid())
-  organizationId String
-  name           String
-  latitude       Float
-  longitude      Float
-  allowedRadiusM Int                @default(120)
-  isActive       Boolean            @default(true)
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  attendance     AttendanceRecord[]
-  qrSessions     DynamicQRSession[]
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-
-  @@index([organizationId, isActive])
+  id            String             @id @default(cuid())
+  name          String
+  email         String             @unique
+  emailVerified Boolean            @default(false)
+  image         String?
+  role          Role               @default(USER)
+  attendance    AttendanceRecord[]
+  qrSessions    DynamicQRSession[] @relation("QrIssuer")
+  sessions      Session[]
+  accounts      Account[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
 
 model AttendanceRecord {
-  id                String            @id @default(cuid())
-  userId            String
-  organizationId    String
-  siteId            String?
-  status            AttendanceStatus  @default(CHECKED_IN)
-  checkedInAt       DateTime
-  checkedOutAt      DateTime?
-  workedMinutes     Int?
-  checkInLat        Float?
-  checkInLng        Float?
-  checkOutLat       Float?
-  checkOutLng       Float?
-  verificationLevel VerificationLevel @default(REVIEW)
-  confidenceScore   Int               @default(0)
-  plannedTasks      String?
-  completedTasks    String?
-  notes             String?
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  site              Site?             @relation(fields: [siteId], references: [id], onDelete: SetNull)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id             String           @id @default(cuid())
+  userId         String
+  status         AttendanceStatus @default(CHECKED_IN)
+  checkedInAt    DateTime
+  checkedOutAt   DateTime?
+  workedMinutes  Int?
+  checkInLat     Float?
+  checkInLng     Float?
+  checkOutLat    Float?
+  checkOutLng    Float?
+  plannedTasks   String?
+  completedTasks String?
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
-  @@index([organizationId, checkedInAt])
   @@index([userId, checkedInAt])
 }
 
 model DynamicQRSession {
-  id             String       @id @default(cuid())
-  organizationId String
-  siteId         String
-  tokenHash      String       @unique
-  nonce          String       @unique
-  issuedAt       DateTime
-  expiresAt      DateTime
-  usedAt         DateTime?
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  site           Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
+  id          String    @id @default(cuid())
+  createdById String
+  tokenHash   String    @unique
+  nonce       String    @unique
+  issuedAt    DateTime
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdBy   User      @relation("QrIssuer", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 
-  @@index([organizationId, siteId, expiresAt])
+  @@index([expiresAt])
 }
 
 model Session {

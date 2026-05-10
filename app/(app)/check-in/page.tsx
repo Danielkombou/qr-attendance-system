@@ -1,102 +1,81 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { CircleCheckBig, Clock3, MapPin, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PanelCard } from "@/components/dashboard/panel-card";
 
+function nowClock() {
+  return new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+async function getCoordinates() {
+  return new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  });
+}
+
 export default function CheckInPage() {
   const [plannedTasks, setPlannedTasks] = useState("");
   const [completedTasks, setCompletedTasks] = useState("");
-  const [siteId, setSiteId] = useState("");
-  const [submittingCheckIn, setSubmittingCheckIn] = useState(false);
-  const [submittingCheckOut, setSubmittingCheckOut] = useState(false);
+  const [submittingIn, setSubmittingIn] = useState(false);
+  const [submittingOut, setSubmittingOut] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const currentTime = useMemo(
-    () =>
-      new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-    [],
-  );
+  const [currentTime, setCurrentTime] = useState(nowClock);
 
-  async function getCoordinates() {
-    return new Promise<{ latitude: number; longitude: number }>((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported in this browser"));
-        return;
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(nowClock()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  async function submit(path: "/api/attendance/check-in" | "/api/attendance/check-out", payload: Record<string, unknown>) {
+    setError("");
+    setMessage("");
+    try {
+      const coords = await getCoordinates();
+      await axios.post(path, { ...coords, ...payload });
+      setMessage(path.endsWith("check-in") ? "Checked in successfully." : "Checked out successfully.");
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError((err.response?.data as { error?: string } | undefined)?.error ?? "Request failed.");
+      } else {
+        setError(err instanceof Error ? err.message : "Request failed.");
       }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) =>
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          }),
-        () => reject(new Error("Unable to fetch your current location")),
-        { enableHighAccuracy: true, timeout: 10000 },
-      );
-    });
+    }
   }
 
   async function handleCheckIn() {
-    setError("");
-    setMessage("");
-    setSubmittingCheckIn(true);
-
-    try {
-      const { latitude, longitude } = await getCoordinates();
-      await axios.post("/api/attendance/check-in", {
-        siteId: siteId.trim(),
-        latitude,
-        longitude,
-        plannedTasks: plannedTasks.trim(),
-      });
-      setMessage("Checked in successfully.");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError((err.response?.data as { error?: string } | undefined)?.error ?? "Check-in failed.");
-      } else {
-        setError(err instanceof Error ? err.message : "Check-in failed.");
-      }
-    } finally {
-      setSubmittingCheckIn(false);
-    }
+    setSubmittingIn(true);
+    await submit("/api/attendance/check-in", { plannedTasks: plannedTasks.trim() });
+    setSubmittingIn(false);
   }
 
   async function handleCheckOut() {
-    setError("");
-    setMessage("");
-    setSubmittingCheckOut(true);
-
-    try {
-      const { latitude, longitude } = await getCoordinates();
-      await axios.post("/api/attendance/check-out", {
-        latitude,
-        longitude,
-        completedTasks: completedTasks.trim(),
-      });
-      setMessage("Checked out successfully.");
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError((err.response?.data as { error?: string } | undefined)?.error ?? "Check-out failed.");
-      } else {
-        setError(err instanceof Error ? err.message : "Check-out failed.");
-      }
-    } finally {
-      setSubmittingCheckOut(false);
-    }
+    setSubmittingOut(true);
+    await submit("/api/attendance/check-out", { completedTasks: completedTasks.trim() });
+    setSubmittingOut(false);
   }
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Check In/Out</h1>
-        <p className="text-muted-foreground">Scan QR code or use quick check-in</p>
+        <p className="text-muted-foreground">Submit your tasks to start or end your day</p>
       </header>
       <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
@@ -123,15 +102,6 @@ export default function CheckInPage() {
           </PanelCard>
           <PanelCard title="Quick Actions">
             <label className="mb-3 block space-y-1.5">
-              <span className="text-sm font-medium">Site ID</span>
-              <input
-                value={siteId}
-                onChange={(event) => setSiteId(event.target.value)}
-                className="h-11 w-full rounded-lg border border-border bg-input-background px-3"
-                placeholder="Paste your site ID"
-              />
-            </label>
-            <label className="mb-3 block space-y-1.5">
               <span className="text-sm font-medium">What are you planning to work on today?</span>
               <textarea
                 rows={3}
@@ -143,11 +113,11 @@ export default function CheckInPage() {
             </label>
             <Button
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingCheckIn || !siteId.trim() || !plannedTasks.trim()}
+              disabled={submittingIn || !plannedTasks.trim()}
               onClick={handleCheckIn}
             >
               <CircleCheckBig className="h-4 w-4" />
-              {submittingCheckIn ? "Checking In..." : "Check In Now"}
+              {submittingIn ? "Checking In..." : "Check In Now"}
             </Button>
             <label className="mb-3 mt-4 block space-y-1.5">
               <span className="text-sm font-medium">What did you complete before check-out?</span>
@@ -162,10 +132,10 @@ export default function CheckInPage() {
             <Button
               variant="outline"
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingCheckOut || !completedTasks.trim()}
+              disabled={submittingOut || !completedTasks.trim()}
               onClick={handleCheckOut}
             >
-              {submittingCheckOut ? "Checking Out..." : "Check Out Now"}
+              {submittingOut ? "Checking Out..." : "Check Out Now"}
             </Button>
             {error ? <p className="mt-3 text-center text-sm text-red-600">{error}</p> : null}
             {message ? <p className="mt-3 text-center text-sm text-emerald-600">{message}</p> : null}

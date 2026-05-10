@@ -1,4 +1,4 @@
-import { AttendanceStatus, JoinRequestStatus, VerificationLevel } from "@prisma/client";
+import { AttendanceStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -14,52 +14,21 @@ export async function GET(request: NextRequest) {
   const adminGuard = requireAdminRole(context.role);
   if (adminGuard) return adminGuard;
 
-  const payload = await withCache(`dashboard:admin:${context.organizationId}`, 15_000, async () => {
+  const payload = await withCache("dashboard:admin", 15_000, async () => {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const [totalUsers, activeUsers, todayCheckIns, lateCount, recentJoinRequests] =
-      await Promise.all([
-        prisma.organizationMembership.count({
-          where: { organizationId: context.organizationId, isActive: true },
-        }),
-        prisma.attendanceRecord.count({
-          where: {
-            organizationId: context.organizationId,
-            status: AttendanceStatus.CHECKED_IN,
-            checkedOutAt: null,
-          },
-        }),
-        prisma.attendanceRecord.count({
-          where: {
-            organizationId: context.organizationId,
-            checkedInAt: { gte: startOfDay },
-          },
-        }),
-        prisma.attendanceRecord.count({
-          where: {
-            organizationId: context.organizationId,
-            verificationLevel: VerificationLevel.REVIEW,
-            checkedInAt: { gte: startOfDay },
-          },
-        }),
-        prisma.organizationJoinRequest.findMany({
-          where: { organizationId: context.organizationId, status: JoinRequestStatus.PENDING },
-          include: { user: { select: { id: true, name: true, email: true } } },
-          orderBy: { createdAt: "desc" },
-          take: 10,
-        }),
-      ]);
+    const [totalUsers, activeNow, todayCheckIns] = await Promise.all([
+      prisma.user.count(),
+      prisma.attendanceRecord.count({
+        where: { status: AttendanceStatus.CHECKED_IN, checkedOutAt: null },
+      }),
+      prisma.attendanceRecord.count({
+        where: { checkedInAt: { gte: startOfDay } },
+      }),
+    ]);
 
-    return {
-      metrics: {
-        totalUsers,
-        activeUsers,
-        todayCheckIns,
-        flaggedForReview: lateCount,
-      },
-      recentJoinRequests,
-    };
+    return { metrics: { totalUsers, activeNow, todayCheckIns } };
   });
 
   return NextResponse.json(payload);

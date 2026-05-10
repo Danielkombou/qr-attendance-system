@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  if (pathname.startsWith("/admin") && role !== "ADMIN" && role !== "OWNER") {
+  if (pathname.startsWith("/admin") && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
