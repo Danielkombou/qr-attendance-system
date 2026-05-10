@@ -29,8 +29,7 @@ export default function ProfilePage() {
           </span>
           <div>
             <p className="text-[2rem] font-semibold">Alex Morgan</p>
-            <p className="text-muted-foreground">Senior Developer - Engineering</p>
-            <p className="text-sm text-muted-foreground">alex.morgan@company.com · ID: EMP-2024-0142</p>
+            <p className="text-sm text-muted-foreground">alex.morgan@example.com</p>
           </div>
         </div>
       </section>

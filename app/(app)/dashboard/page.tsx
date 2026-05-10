@@ -3,10 +3,10 @@ import { ActivityList } from "@/components/dashboard/activity-list";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 
-const presentUsers = [
-  { initials: "SJ", name: "Sarah Johnson", team: "Engineering", duration: "3h 25m", time: "08:45 AM" },
-  { initials: "ED", name: "Emily Davis", team: "Design", duration: "3h 08m", time: "09:02 AM" },
-  { initials: "JW", name: "James Wilson", team: "Marketing", duration: "3h 40m", time: "08:30 AM" },
+const recentCheckIns = [
+  { initials: "SJ", name: "Sarah Johnson", duration: "3h 25m", time: "08:45 AM" },
+  { initials: "ED", name: "Emily Davis", duration: "3h 08m", time: "09:02 AM" },
+  { initials: "JW", name: "James Wilson", duration: "3h 40m", time: "08:30 AM" },
 ];
 
 const recentActivity = [
@@ -20,7 +20,7 @@ export default function UserDashboardPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Dashboard</h1>
-        <p className="text-muted-foreground">Thursday, May 7, 2026</p>
+        <p className="text-muted-foreground">Your attendance at a glance</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -31,22 +31,19 @@ export default function UserDashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <PanelCard title="Currently Present" rightSlot={<span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">5 Active</span>}>
+        <PanelCard title="Recent Check-ins" rightSlot={<span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">5 Active</span>}>
           <ul className="divide-y divide-border">
-            {presentUsers.map((user) => (
-              <li key={user.name} className="flex items-center justify-between py-3">
+            {recentCheckIns.map((entry) => (
+              <li key={entry.name} className="flex items-center justify-between py-3">
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                    {user.initials}
+                    {entry.initials}
                   </span>
-                  <span>
-                    <span className="block font-medium">{user.name}</span>
-                    <span className="text-sm text-muted-foreground">{user.team}</span>
-                  </span>
+                  <span className="block font-medium">{entry.name}</span>
                 </div>
                 <span className="text-right text-sm">
-                  <span className="block font-medium">{user.duration}</span>
-                  <span className="text-muted-foreground">{user.time}</span>
+                  <span className="block font-medium">{entry.duration}</span>
+                  <span className="text-muted-foreground">{entry.time}</span>
                 </span>
               </li>
             ))}

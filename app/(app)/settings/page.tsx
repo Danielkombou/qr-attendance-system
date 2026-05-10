@@ -5,14 +5,10 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Settings</h1>
-        <p className="text-muted-foreground">Manage your preferences and system configuration</p>
+        <p className="text-muted-foreground">Manage your preferences</p>
       </header>
       <PanelCard title="General Settings">
         <div className="grid gap-4">
-          <label className="grid gap-1.5">
-            <span className="text-sm font-medium">Organization Name</span>
-            <input className="h-11 rounded-lg border border-border bg-input-background px-3" defaultValue="TechCorp Inc." />
-          </label>
           <label className="grid gap-1.5">
             <span className="text-sm font-medium">Timezone</span>
             <select className="h-11 rounded-lg border border-border bg-input-background px-3">

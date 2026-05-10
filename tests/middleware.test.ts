@@ -16,14 +16,14 @@ describe("middleware access boundaries", () => {
 
   it("allows authenticated user route", () => {
     const response = middleware(
-      makeRequest("/dashboard", "attendx_user_id=user_1; attendx_org_id=org_1; attendx_role=EMPLOYEE"),
+      makeRequest("/dashboard", "attendx_user_id=user_1; attendx_role=USER"),
     );
     expect(response.status).toBe(200);
   });
 
   it("redirects non-admin from admin route", () => {
     const response = middleware(
-      makeRequest("/admin/dashboard", "attendx_user_id=user_1; attendx_org_id=org_1; attendx_role=EMPLOYEE"),
+      makeRequest("/admin/dashboard", "attendx_user_id=user_1; attendx_role=USER"),
     );
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://attendx.local/dashboard");

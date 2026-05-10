@@ -24,28 +24,20 @@ export default function ReportsPage() {
         <MetricCard title="Late Arrivals" value="12" trend="-4" icon={<TrendingUp className="h-5 w-5" />} />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
-        <PanelCard title="Weekly Attendance">
-          <div className="h-72 rounded-xl border border-border bg-background p-4">
-            <div className="grid h-full grid-cols-5 items-end gap-6">
-              {[42, 45, 43, 44, 41].map((value, index) => (
-                <div key={value + index} className="flex h-full flex-col justify-end">
-                  <div className="rounded-md bg-red-500" style={{ height: `${value}%` }} />
-                  <p className="mt-2 text-center text-sm text-muted-foreground">{["Mon", "Tue", "Wed", "Thu", "Fri"][index]}</p>
-                </div>
-              ))}
-            </div>
+      <PanelCard title="Weekly Attendance">
+        <div className="h-72 rounded-xl border border-border bg-background p-4">
+          <div className="grid h-full grid-cols-5 items-end gap-6">
+            {[42, 45, 43, 44, 41].map((value, index) => (
+              <div key={value + index} className="flex h-full flex-col justify-end">
+                <div className="rounded-md bg-primary/80" style={{ height: `${value}%` }} />
+                <p className="mt-2 text-center text-sm text-muted-foreground">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri"][index]}
+                </p>
+              </div>
+            ))}
           </div>
-        </PanelCard>
-        <PanelCard title="By Department">
-          <ul className="space-y-3 text-sm">
-            <li className="flex justify-between"><span>Engineering</span><span>15</span></li>
-            <li className="flex justify-between"><span>Design</span><span>8</span></li>
-            <li className="flex justify-between"><span>Marketing</span><span>10</span></li>
-            <li className="flex justify-between"><span>Product</span><span>12</span></li>
-          </ul>
-        </PanelCard>
-      </section>
+        </div>
+      </PanelCard>
     </div>
   );
 }

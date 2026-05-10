@@ -1,23 +1,23 @@
 # AttendX
 
-AttendX is a multi-tenant attendance and presence tracking platform built with the Next.js App Router. It includes separated user/admin dashboard experiences, organization-scoped access controls, and API endpoints for onboarding, attendance, and analytics.
+AttendX is a simple attendance tracking app built with the Next.js App Router. Users sign up, sign in, and check in/out with planned and completed tasks. Admins get a separate dashboard.
 
 ## Implemented Scope
 
 ### Product Areas
 
-- Public landing route and auth entry points (`/`, `/sign-in`, `/get-started`)
+- Public landing and auth (`/`, `/sign-in`, `/get-started`)
 - User app routes (`/dashboard`, `/check-in`, `/team`, `/reports`, `/profile`, `/settings`)
 - Admin routes (`/admin/dashboard`, `/admin/users`)
-- Organization onboarding flow (create org, request access, approve/reject requests, invitations)
-- Attendance flow (check-in/check-out, geofence validation, verification levels)
-- Analytics summaries for dashboard/reporting APIs
-- Dynamic QR session issuance and validation endpoints
+- Attendance flow (check-in/check-out with planned/completed tasks, optional GPS capture)
+- Short-lived signed QR session issuance/validation (admin-issued)
 
 ### Roles
 
-- `Admin`/`Owner`: can manage org-scoped workflows and admin-only APIs
-- `User`: can check in/out and access user dashboard features
+- `ADMIN`: can access admin routes and issue QR sessions
+- `USER`: can check in/out and access user routes
+
+The first admin is created via the seed script.
 
 ## Tech Stack
 
@@ -33,14 +33,14 @@ AttendX is a multi-tenant attendance and presence tracking platform built with t
 - `app/(public)/**` - public marketing/landing pages
 - `app/(auth)/**` - auth-facing pages
 - `app/(app)/**` - authenticated user/admin UI routes
-- `app/api/**` - backend API contracts
+- `app/api/**` - backend API routes
 - `components/**` - reusable UI blocks
 - `lib/**` - shared auth, server helpers, and Prisma client wiring
-- `prisma/schema.prisma` - data model and relations
+- `prisma/schema.prisma` - data model
 
 ## Getting Started
 
-> This repo is configured for `pnpm`.
+> This repo uses `pnpm`.
 
 1. Install dependencies
 
@@ -48,19 +48,20 @@ AttendX is a multi-tenant attendance and presence tracking platform built with t
 pnpm install
 ```
 
-2. Create `.env` and set required values
+2. Create `.env`
 
 ```env
 DATABASE_URL=postgresql://user:password@host:5432/attendx
 BETTER_AUTH_SECRET=replace-with-a-strong-secret
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:3001
 QR_TOKEN_SECRET=replace-with-a-strong-secret
 ```
 
-3. Apply Prisma migrations
+3. Apply Prisma migrations and seed
 
 ```bash
-npx prisma migrate dev
+npx prisma migrate dev --name init
+node prisma/seed.js
 ```
 
 4. Start development server
@@ -69,7 +70,7 @@ npx prisma migrate dev
 pnpm dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000)
+5. Open [http://localhost:3001](http://localhost:3001)
 
 ## Useful Commands
 
@@ -78,33 +79,18 @@ pnpm dev
 pnpm build
 pnpm start
 pnpm lint
-npx prisma format
-npx prisma validate
+pnpm test
 npx prisma migrate dev
 ```
 
-## API Surface (Current)
+## API Surface
 
-- `app/api/auth/[...all]/route.ts`
-- `app/api/orgs/route.ts`
-- `app/api/orgs/[orgId]/join-requests/route.ts`
-- `app/api/orgs/[orgId]/join-requests/[requestId]/route.ts`
-- `app/api/orgs/[orgId]/invitations/route.ts`
-- `app/api/onboarding/request-access/route.ts`
+- `app/api/auth/[...all]/route.ts` (better-auth)
+- `app/api/onboarding/sign-up/route.ts`
+- `app/api/onboarding/sign-in/route.ts`
 - `app/api/attendance/check-in/route.ts`
 - `app/api/attendance/check-out/route.ts`
 - `app/api/dashboard/user/route.ts`
 - `app/api/dashboard/admin/route.ts`
-- `app/api/analytics/summary/route.ts`
 - `app/api/qr/session/route.ts`
 - `app/api/qr/validate/route.ts`
-
-## Data Integrity Notes
-
-The schema enforces organization-scoped referential integrity, including:
-
-- `Invitation.invitedById -> User.id`
-- `OrganizationJoinRequest.reviewedById -> User.id`
-- `DynamicQRSession.organizationId -> Organization.id`
-
-These are captured in Prisma relations and migrations under `prisma/migrations/**`.

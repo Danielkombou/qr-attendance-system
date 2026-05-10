@@ -1,73 +1,46 @@
-# AttendX API Contracts (Phase 1-3)
+# AttendX API Contracts
 
 ## Auth
-- `ALL /api/auth/*`: better-auth handler endpoint (`app/api/auth/[...all]/route.ts`).
+
+- `ALL /api/auth/*` — better-auth handler (`app/api/auth/[...all]/route.ts`)
+- `POST /api/onboarding/sign-up`
+  - Body: `{ "name": string, "email": string, "password": string }`
+  - Creates a USER account via better-auth.
 - `POST /api/onboarding/sign-in`
   - Body: `{ "email": string, "password": string }`
-  - Exchanges credentials through better-auth and sets AttendX org context cookies.
-- `POST /api/onboarding/sign-up`
-  - Body: `{ "name": string, "email": string, "password": string, "organizationSlug"?: string, "joinMessage"?: string }`
-  - Creates account and optionally submits join request.
-
-## Organization and Onboarding
-- `GET /api/orgs`
-  - Returns organizations the current user belongs to.
-- `POST /api/orgs`
-  - Creates new organization and owner membership.
-  - Body: `{ "name": string, "timezone"?: string }`
-
-- `POST /api/onboarding/request-access`
-  - Open-signup users request organization join approval.
-  - Body: `{ "organizationSlug": string, "message"?: string }`
-
-- `POST /api/onboarding/accept-invite`
-  - Accept invite token and create membership.
-  - Body: `{ "token": string }`
-
-## Join Requests
-- `GET /api/orgs/:orgId/join-requests` (admin)
-- `POST /api/orgs/:orgId/join-requests` (user)
-  - Body: `{ "message": string }`
-- `PATCH /api/orgs/:orgId/join-requests/:requestId` (admin)
-  - Body: `{ "status": "APPROVED" | "REJECTED" }`
-
-## Invitations
-- `GET /api/orgs/:orgId/invitations` (admin)
-- `POST /api/orgs/:orgId/invitations` (admin)
-  - Body: `{ "email": string, "role"?: "EMPLOYEE" | "MANAGER" | "ADMIN" | "OWNER" }`
-  - Response includes invite token and URL.
+  - Signs in via better-auth and sets `attendx_user_id` and `attendx_role` cookies.
+  - Response: `{ "ok": true, "redirectTo": "/dashboard" | "/admin/dashboard" }`
 
 ## Attendance
-- `POST /api/attendance/check-in`
-  - Body: `{ "siteId": string, "latitude": number, "longitude": number, "plannedTasks": string }`
-  - Returns check-in record + geofence result.
 
+- `POST /api/attendance/check-in`
+  - Body: `{ "plannedTasks": string, "latitude"?: number, "longitude"?: number }`
+  - Rejects with 409 if the caller already has an open check-in.
 - `POST /api/attendance/check-out`
-  - Body: `{ "latitude": number, "longitude": number, "completedTasks": string }`
-  - Closes active check-in and computes worked minutes.
+  - Body: `{ "completedTasks": string, "latitude"?: number, "longitude"?: number }`
+  - Closes the caller's open check-in and computes worked minutes.
 
 ## Dashboard
+
 - `GET /api/dashboard/user`
-  - User metrics, recent attendance, on-time rate.
-- `GET /api/dashboard/admin` (admin)
-  - Admin metrics and pending join requests.
+  - Returns `{ latest, totalWorkedMinutes, recent }` for the caller.
+- `GET /api/dashboard/admin` (ADMIN)
+  - Returns `{ metrics: { totalUsers, activeNow, todayCheckIns } }`.
 
-## Trust / Security (Phase 2)
-- `POST /api/qr/session` (admin)
-  - Creates short-lived signed QR token for site scanner.
-  - Body: `{ "siteId": string, "ttlSeconds"?: number }`
+## QR Sessions
+
+- `POST /api/qr/session` (ADMIN)
+  - Body: `{ "ttlSeconds"?: number }` (clamped to `[15, 300]`, default `45`)
+  - Returns `{ "token": string, "expiresAt": number }`.
 - `POST /api/qr/validate`
-  - Validates signed QR token and prevents replay.
   - Body: `{ "token": string }`
+  - Verifies signature, marks `usedAt`, and returns `{ "valid": true, "expiresAt": number }`.
 
-## Analytics (Phase 3)
-- `GET /api/analytics/summary` (admin)
-  - Weekly attendance stats and top performers.
+## Authorization
 
-## Context and Authorization Headers (current foundation)
-Until session middleware is fully wired to better-auth context extraction, APIs accept these request headers (or equivalent cookies) for context:
-- `x-user-id`
-- `x-org-id`
-- `x-role`
+Routes read context from cookies (or `x-user-id` / `x-role` headers in tests):
 
-This allows progressive integration while preserving strict route-level authorization checks.
+- `attendx_user_id`
+- `attendx_role` (`USER` or `ADMIN`)
+
+Middleware redirects unauthenticated users to `/sign-in` and non-admins away from `/admin/*`.
