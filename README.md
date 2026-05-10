@@ -9,7 +9,8 @@ AttendX is a simple attendance tracking app built with the Next.js App Router. U
 - Public landing and auth (`/`, `/sign-in`, `/get-started`)
 - User app routes (`/dashboard`, `/check-in`, `/team`, `/reports`, `/profile`, `/settings`)
 - Admin routes (`/admin/dashboard`, `/admin/users`)
-- Attendance flow (check-in/check-out with planned/completed tasks, optional GPS capture)
+- Attendance flow (check-in/check-out with planned/completed tasks, GPS + site geofence)
+- Admin user search and role changes (`/admin/dashboard`)
 - Short-lived signed QR session issuance/validation (admin-issued)
 
 ### Roles
@@ -17,7 +18,7 @@ AttendX is a simple attendance tracking app built with the Next.js App Router. U
 - `ADMIN`: can access admin routes and issue QR sessions
 - `USER`: can check in/out and access user routes
 
-The first admin is created via the seed script.
+The first admin and a default **Office** site (`seed-main-site`) are created via the seed script.
 
 ## Tech Stack
 
@@ -90,6 +91,9 @@ npx prisma migrate dev
 - `app/api/onboarding/sign-in/route.ts`
 - `app/api/attendance/check-in/route.ts`
 - `app/api/attendance/check-out/route.ts`
+- `app/api/sites/route.ts`
+- `app/api/admin/users/search/route.ts`
+- `app/api/admin/users/[userId]/role/route.ts`
 - `app/api/dashboard/user/route.ts`
 - `app/api/dashboard/admin/route.ts`
 - `app/api/qr/session/route.ts`

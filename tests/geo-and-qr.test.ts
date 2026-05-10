@@ -1,6 +1,12 @@
+import { haversineDistanceMeters } from "../lib/server/geofence";
 import { createQRToken, verifyQRToken } from "../lib/server/qr-token";
 
-describe("qr token security primitives", () => {
+describe("geofence and qr token primitives", () => {
+  it("computes near-zero distance for same coordinates", () => {
+    const distance = haversineDistanceMeters(37.7749, -122.4194, 37.7749, -122.4194);
+    expect(distance).toBeLessThan(1);
+  });
+
   it("creates and validates a signed qr token", () => {
     const { token, nonce, expiresAt } = createQRToken(45);
     const payload = verifyQRToken(token);

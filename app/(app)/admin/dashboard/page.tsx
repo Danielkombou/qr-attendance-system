@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
     return () => window.clearTimeout(handle);
   }, [query, search]);
 
-  async function setRole(userId: string, role: Role) {
+  async function setRole(userId: string, role: "USER" | "ADMIN") {
     setUpdatingId(userId);
     setBanner(null);
     try {
