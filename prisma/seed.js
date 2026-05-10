@@ -1,5 +1,5 @@
 require("dotenv/config");
-const { PrismaClient, Role } = require("@prisma/client");
+const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
 const databaseUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
@@ -43,20 +43,8 @@ async function main() {
     }),
   );
 
-  const admin = await withRetry("user.upsert", () =>
-    prisma.user.upsert({
-      where: { email: "admin@attendx.local" },
-      update: { role: Role.ADMIN },
-      create: {
-        email: "admin@attendx.local",
-        name: "AttendX Admin",
-        emailVerified: true,
-        role: Role.ADMIN,
-      },
-    }),
-  );
-
-  console.log(`Seed complete. Site id: seed-main-site. Admin: ${admin.email}`);
+  console.log("Seed complete. Default site id: seed-main-site");
+  console.log("Next: sign up at /get-started, then run `node prisma/promote-admin.js <email>` to grant ADMIN.");
 }
 
 main()

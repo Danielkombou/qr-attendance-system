@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export function SignInForm() {
@@ -10,12 +11,17 @@ export function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!email || !password) {
+      toast.warning("Email and password are required.");
+      return;
+    }
+
     setSubmitting(true);
-    setError("");
+    const toastId = toast.loading("Signing you in…");
 
     try {
       const response = await axios.post<{ error?: string; redirectTo?: string }>(
@@ -23,15 +29,19 @@ export function SignInForm() {
         { email, password },
       );
       const payload = response.data;
+      toast.success("Welcome back!", {
+        id: toastId,
+        description: "Redirecting to your dashboard.",
+      });
       router.push(payload.redirectTo ?? "/dashboard");
       router.refresh();
     } catch (error) {
       const fallback = "Unexpected sign in error.";
-      if (error instanceof AxiosError) {
-        setError((error.response?.data as { error?: string } | undefined)?.error ?? fallback);
-      } else {
-        setError(fallback);
-      }
+      const message =
+        error instanceof AxiosError
+          ? (error.response?.data as { error?: string } | undefined)?.error ?? fallback
+          : fallback;
+      toast.error("Sign in failed", { id: toastId, description: message });
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +74,6 @@ export function SignInForm() {
           placeholder="********"
         />
       </label>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" className="h-11 w-full" disabled={submitting}>
         {submitting ? "Signing In..." : "Sign In"}
       </Button>

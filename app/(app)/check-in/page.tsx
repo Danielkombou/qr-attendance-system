@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { CircleCheckBig, Clock3, MapPin, QrCode } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PanelCard } from "@/components/dashboard/panel-card";
 
@@ -41,8 +42,6 @@ export default function CheckInPage() {
   const [sites, setSites] = useState<SiteOption[]>([]);
   const [submittingIn, setSubmittingIn] = useState(false);
   const [submittingOut, setSubmittingOut] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [currentTime, setCurrentTime] = useState(() => nowClock());
 
   useEffect(() => {
@@ -58,41 +57,79 @@ export default function CheckInPage() {
         setSites(list);
         if (list.length > 0) {
           setSiteId((current) => (current ? current : list[0].id));
+          toast.info(`Loaded ${list.length} site${list.length === 1 ? "" : "s"}.`);
+        } else {
+          toast.message("No sites configured", {
+            description: "Ask an admin to create a site, or enter an ID manually.",
+          });
         }
       })
       .catch(() => {
-        /* unauthenticated or network — leave sites empty */
+        toast.error("Could not load sites", {
+          description: "You can still type a site ID manually below.",
+        });
       });
   }, []);
 
-  async function submit(path: "/api/attendance/check-in" | "/api/attendance/check-out", payload: Record<string, unknown>) {
-    setError("");
-    setMessage("");
+  async function submit(
+    path: "/api/attendance/check-in" | "/api/attendance/check-out",
+    payload: Record<string, unknown>,
+    labels: { loading: string; success: string; failure: string },
+  ) {
+    const toastId = toast.loading(labels.loading);
     try {
       const { latitude, longitude } = await getCoordinates();
       await axios.post(path, { latitude, longitude, ...payload });
-      setMessage(path.endsWith("check-in") ? "Checked in successfully." : "Checked out successfully.");
+      toast.success(labels.success, { id: toastId });
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setError((err.response?.data as { error?: string } | undefined)?.error ?? "Request failed.");
-      } else {
-        setError(err instanceof Error ? err.message : "Request failed.");
-      }
+      const fallback = labels.failure;
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? fallback
+          : err instanceof Error
+          ? err.message
+          : fallback;
+      toast.error(labels.failure, { id: toastId, description: message });
     }
   }
 
   async function handleCheckIn() {
+    if (!siteId.trim()) {
+      toast.warning("Pick a site before checking in.");
+      return;
+    }
+    if (!plannedTasks.trim()) {
+      toast.warning("Add at least one planned task.");
+      return;
+    }
     setSubmittingIn(true);
-    await submit("/api/attendance/check-in", {
-      siteId: siteId.trim(),
-      plannedTasks: plannedTasks.trim(),
-    });
+    await submit(
+      "/api/attendance/check-in",
+      { siteId: siteId.trim(), plannedTasks: plannedTasks.trim() },
+      {
+        loading: "Reading GPS and checking you in…",
+        success: "Checked in successfully.",
+        failure: "Check-in failed",
+      },
+    );
     setSubmittingIn(false);
   }
 
   async function handleCheckOut() {
+    if (!completedTasks.trim()) {
+      toast.warning("List what you completed before checking out.");
+      return;
+    }
     setSubmittingOut(true);
-    await submit("/api/attendance/check-out", { completedTasks: completedTasks.trim() });
+    await submit(
+      "/api/attendance/check-out",
+      { completedTasks: completedTasks.trim() },
+      {
+        loading: "Reading GPS and checking you out…",
+        success: "Checked out successfully.",
+        failure: "Check-out failed",
+      },
+    );
     setSubmittingOut(false);
   }
 
@@ -161,7 +198,7 @@ export default function CheckInPage() {
             </label>
             <Button
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingIn || !siteId.trim() || !plannedTasks.trim()}
+              disabled={submittingIn}
               onClick={handleCheckIn}
             >
               <CircleCheckBig className="h-4 w-4" />
@@ -180,13 +217,11 @@ export default function CheckInPage() {
             <Button
               variant="outline"
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingOut || !completedTasks.trim()}
+              disabled={submittingOut}
               onClick={handleCheckOut}
             >
               {submittingOut ? "Checking Out..." : "Check Out Now"}
             </Button>
-            {error ? <p className="mt-3 text-center text-sm text-red-600">{error}</p> : null}
-            {message ? <p className="mt-3 text-center text-sm text-emerald-600">{message}</p> : null}
             <p className="mt-3 text-center text-sm text-muted-foreground">
               Check-in must be within the site radius. GPS permission is required.
             </p>

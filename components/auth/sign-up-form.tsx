@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export function SignUpForm() {
@@ -11,24 +12,33 @@ export function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (password.length < 8) {
+      toast.warning("Password must be at least 8 characters.");
+      return;
+    }
+
     setSubmitting(true);
-    setError("");
+    const toastId = toast.loading("Creating your account…");
 
     try {
       await axios.post("/api/onboarding/sign-up", { name, email, password });
+      toast.success("Account created", {
+        id: toastId,
+        description: "You can sign in now.",
+      });
       router.push("/sign-in");
       router.refresh();
     } catch (err) {
       const fallback = "Unexpected sign up error.";
-      if (err instanceof AxiosError) {
-        setError((err.response?.data as { error?: string } | undefined)?.error ?? fallback);
-      } else {
-        setError(fallback);
-      }
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? fallback
+          : fallback;
+      toast.error("Sign up failed", { id: toastId, description: message });
     } finally {
       setSubmitting(false);
     }
@@ -69,7 +79,6 @@ export function SignUpForm() {
           className="h-11 rounded-lg border border-border bg-input-background px-3"
         />
       </label>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" className="h-11 w-full" disabled={submitting}>
         {submitting ? "Creating..." : "Create Account"}
       </Button>

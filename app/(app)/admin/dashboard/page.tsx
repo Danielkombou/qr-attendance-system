@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { Search } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PanelCard } from "@/components/dashboard/panel-card";
 
@@ -22,7 +23,6 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [searching, setSearching] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [banner, setBanner] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const loadMetrics = useCallback(async () => {
     try {
@@ -30,12 +30,12 @@ export default function AdminDashboardPage() {
       setMetrics(data.metrics);
     } catch {
       setMetrics(null);
+      toast.error("Could not load dashboard metrics.");
     }
   }, []);
 
   const search = useCallback(async (q: string) => {
     setSearching(true);
-    setBanner(null);
     try {
       const { data } = await axios.get<{ users: UserRow[] }>("/api/admin/users/search", {
         params: { q },
@@ -43,9 +43,11 @@ export default function AdminDashboardPage() {
       setUsers(data.users ?? []);
     } catch (err) {
       setUsers([]);
-      if (err instanceof AxiosError) {
-        setBanner({ type: "err", text: err.response?.data?.error ?? "Search failed." });
-      }
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Search failed."
+          : "Search failed.";
+      toast.error(message);
     } finally {
       setSearching(false);
     }
@@ -64,16 +66,20 @@ export default function AdminDashboardPage() {
 
   async function setRole(userId: string, role: "USER" | "ADMIN") {
     setUpdatingId(userId);
-    setBanner(null);
+    const toastId = toast.loading(role === "ADMIN" ? "Promoting user…" : "Demoting user…");
     try {
       await axios.patch(`/api/admin/users/${userId}/role`, { role });
-      setBanner({ type: "ok", text: role === "ADMIN" ? "User is now an admin." : "User is now a standard user." });
+      toast.success(role === "ADMIN" ? "User is now an admin." : "User is now a standard user.", {
+        id: toastId,
+      });
       await loadMetrics();
       await search(query.trim());
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setBanner({ type: "err", text: (err.response?.data as { error?: string })?.error ?? "Update failed." });
-      }
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Update failed."
+          : "Update failed.";
+      toast.error("Role update failed", { id: toastId, description: message });
     } finally {
       setUpdatingId(null);
     }
@@ -85,10 +91,6 @@ export default function AdminDashboardPage() {
         <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Admin Panel</h1>
         <p className="text-muted-foreground">Search by name or email, then change role</p>
       </header>
-
-      {banner ? (
-        <p className={banner.type === "ok" ? "text-sm text-emerald-600" : "text-sm text-red-600"}>{banner.text}</p>
-      ) : null}
 
       <section className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-5">

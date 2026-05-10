@@ -1,7 +1,8 @@
-import axios, { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 import { badRequest } from "@/lib/server/api-utils";
+import { authErrorResponse } from "@/lib/server/auth-errors";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -14,25 +15,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await axios.post(
-      `${request.nextUrl.origin}/api/auth/sign-up/email`,
-      { name, email, password, rememberMe: true },
-      {
-        headers: {
-          "content-type": "application/json",
-          cookie: request.headers.get("cookie") ?? "",
-        },
-        validateStatus: () => true,
-      },
-    );
-
-    if (response.status < 200 || response.status >= 300) {
-      return NextResponse.json({ error: "Unable to create account" }, { status: response.status });
-    }
-
+    await auth.api.signUpEmail({
+      body: { name, email, password },
+      headers: request.headers,
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const status = error instanceof AxiosError ? (error.response?.status ?? 500) : 500;
-    return NextResponse.json({ error: "Unable to create account" }, { status });
+    return authErrorResponse(error, "Unable to create account");
   }
 }
