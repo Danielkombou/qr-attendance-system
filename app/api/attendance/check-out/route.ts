@@ -15,8 +15,14 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json().catch(() => null);
   const completedTasks = (body?.completedTasks as string | undefined)?.trim();
+  const latitude = toFloat(body?.latitude);
+  const longitude = toFloat(body?.longitude);
+
   if (!completedTasks) {
     return badRequest("completedTasks is required");
+  }
+  if (latitude === null || longitude === null) {
+    return badRequest("latitude and longitude are required");
   }
 
   const open = await prisma.attendanceRecord.findFirst({
@@ -39,8 +45,8 @@ export async function POST(request: NextRequest) {
       status: AttendanceStatus.CHECKED_OUT,
       checkedOutAt,
       workedMinutes,
-      checkOutLat: toFloat(body?.latitude),
-      checkOutLng: toFloat(body?.longitude),
+      checkOutLat: latitude,
+      checkOutLng: longitude,
       completedTasks,
     },
   });
