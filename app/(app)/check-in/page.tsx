@@ -15,40 +15,62 @@ function nowClock() {
 }
 
 async function getCoordinates() {
-  return new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+  return new Promise<{ latitude: number; longitude: number }>((resolve, reject) => {
     if (!navigator.geolocation) {
-      resolve(null);
+      reject(new Error("Geolocation is not supported in this browser"));
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (position) =>
-        resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
-      () => resolve(null),
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      () => reject(new Error("Unable to fetch your current location")),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   });
 }
 
+type SiteOption = { id: string; name: string; allowedRadiusM: number };
+
 export default function CheckInPage() {
   const [plannedTasks, setPlannedTasks] = useState("");
   const [completedTasks, setCompletedTasks] = useState("");
+  const [siteId, setSiteId] = useState("");
+  const [sites, setSites] = useState<SiteOption[]>([]);
   const [submittingIn, setSubmittingIn] = useState(false);
   const [submittingOut, setSubmittingOut] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [currentTime, setCurrentTime] = useState(nowClock);
+  const [currentTime, setCurrentTime] = useState(() => nowClock());
 
   useEffect(() => {
     const timer = window.setInterval(() => setCurrentTime(nowClock()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    axios
+      .get<{ sites: SiteOption[] }>("/api/sites")
+      .then((res) => {
+        const list = res.data.sites ?? [];
+        setSites(list);
+        if (list.length > 0) {
+          setSiteId((current) => (current ? current : list[0].id));
+        }
+      })
+      .catch(() => {
+        /* unauthenticated or network — leave sites empty */
+      });
+  }, []);
+
   async function submit(path: "/api/attendance/check-in" | "/api/attendance/check-out", payload: Record<string, unknown>) {
     setError("");
     setMessage("");
     try {
-      const coords = await getCoordinates();
-      await axios.post(path, { ...coords, ...payload });
+      const { latitude, longitude } = await getCoordinates();
+      await axios.post(path, { latitude, longitude, ...payload });
       setMessage(path.endsWith("check-in") ? "Checked in successfully." : "Checked out successfully.");
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -61,7 +83,10 @@ export default function CheckInPage() {
 
   async function handleCheckIn() {
     setSubmittingIn(true);
-    await submit("/api/attendance/check-in", { plannedTasks: plannedTasks.trim() });
+    await submit("/api/attendance/check-in", {
+      siteId: siteId.trim(),
+      plannedTasks: plannedTasks.trim(),
+    });
     setSubmittingIn(false);
   }
 
@@ -75,7 +100,7 @@ export default function CheckInPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Check In/Out</h1>
-        <p className="text-muted-foreground">Submit your tasks to start or end your day</p>
+        <p className="text-muted-foreground">Check-in is validated against the site geofence using your GPS</p>
       </header>
       <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
@@ -102,6 +127,29 @@ export default function CheckInPage() {
           </PanelCard>
           <PanelCard title="Quick Actions">
             <label className="mb-3 block space-y-1.5">
+              <span className="text-sm font-medium">Site</span>
+              {sites.length > 0 ? (
+                <select
+                  value={siteId}
+                  onChange={(event) => setSiteId(event.target.value)}
+                  className="h-11 w-full rounded-lg border border-border bg-input-background px-3"
+                >
+                  {sites.map((site) => (
+                    <option key={site.id} value={site.id}>
+                      {site.name} ({site.allowedRadiusM}m radius)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  value={siteId}
+                  onChange={(event) => setSiteId(event.target.value)}
+                  className="h-11 w-full rounded-lg border border-border bg-input-background px-3"
+                  placeholder="Site ID (from your admin)"
+                />
+              )}
+            </label>
+            <label className="mb-3 block space-y-1.5">
               <span className="text-sm font-medium">What are you planning to work on today?</span>
               <textarea
                 rows={3}
@@ -113,7 +161,7 @@ export default function CheckInPage() {
             </label>
             <Button
               className="h-12 w-full gap-2 text-base"
-              disabled={submittingIn || !plannedTasks.trim()}
+              disabled={submittingIn || !siteId.trim() || !plannedTasks.trim()}
               onClick={handleCheckIn}
             >
               <CircleCheckBig className="h-4 w-4" />
@@ -140,7 +188,7 @@ export default function CheckInPage() {
             {error ? <p className="mt-3 text-center text-sm text-red-600">{error}</p> : null}
             {message ? <p className="mt-3 text-center text-sm text-emerald-600">{message}</p> : null}
             <p className="mt-3 text-center text-sm text-muted-foreground">
-              Submit your planned tasks at check-in and completed tasks at check-out.
+              Check-in must be within the site radius. GPS permission is required.
             </p>
           </PanelCard>
         </div>
