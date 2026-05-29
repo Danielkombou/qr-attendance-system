@@ -38,7 +38,7 @@ export function BrandLogo({
       aria-label="AttendX home"
     >
       <span
-        className={`inline-flex items-center justify-center bg-[var(--brand-ink)] text-[var(--button-foreground)] shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
+        className={`inline-flex items-center justify-center bg-[var(--brand-ink)] text-[var(--primary-foreground)] shadow-[0_10px_30px_-18px_rgba(10,14,38,0.95)] ${styles.mark}`}
       >
         <QrCode className={styles.icon} strokeWidth={2.2} />
       </span>

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await auth.api.signUpEmail({
-      body: { name, email, password },
+      body: { name, email, password, rememberMe: true },
       headers: request.headers,
     });
     return NextResponse.json({ ok: true });
