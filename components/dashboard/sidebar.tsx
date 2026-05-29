@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
+import { ShellActions } from "@/components/dashboard/shell-actions";
 import { cn } from "@/lib/utils";
 import type { DashboardNavItem } from "@/components/dashboard/navigation";
 
@@ -17,7 +18,7 @@ export function Sidebar({ items }: SidebarProps) {
     <aside className="hidden w-[232px] shrink-0 border-r border-border bg-background/75 backdrop-blur-md lg:block">
       <div className="sticky top-0 flex h-screen flex-col px-3 py-5">
         <BrandLogo className="px-2" />
-        <nav className="mt-8 space-y-1">
+        <nav className="mt-8 flex-1 space-y-1 overflow-y-auto">
           {items.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;
@@ -36,6 +37,7 @@ export function Sidebar({ items }: SidebarProps) {
             );
           })}
         </nav>
+        <ShellActions layout="sidebar" className="mt-4 border-t border-border pt-4" />
       </div>
     </aside>
   );

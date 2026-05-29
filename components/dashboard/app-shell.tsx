@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ShellActions } from "@/components/dashboard/shell-actions";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import {
   adminNavigation,
@@ -32,15 +33,18 @@ export function AppShell({ variant, children }: AppShellProps) {
       <Sidebar items={items} />
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="border-b border-border bg-background/75 px-4 py-3 backdrop-blur-md lg:hidden">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setMobileOpen((value) => !value)}
-            className="gap-2"
-          >
-            <Menu className="h-4 w-4" />
-            Menu
-          </Button>
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setMobileOpen((value) => !value)}
+              className="gap-2"
+            >
+              <Menu className="h-4 w-4" />
+              Menu
+            </Button>
+            <ShellActions layout="toolbar" />
+          </div>
           {mobileOpen ? (
             <nav className="mt-3 grid gap-2">
               {items.map((item) => {

@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { NavActions } from "@/components/landing/nav-actions";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export function SiteNavbar() {
@@ -45,23 +46,27 @@ export function SiteNavbar() {
       <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
         <div className="flex w-full items-center justify-between gap-3">
           <BrandLogo className="min-w-0" />
-          <div className="hidden sm:block">
+          <div className="hidden items-center gap-2 sm:flex">
+            <ThemeToggle variant="icon" />
             <NavActions />
           </div>
-          <button
+          <div className="flex items-center gap-2 sm:hidden">
+            <ThemeToggle variant="icon" />
+            <button
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMobileMenuOpen((value) => !value)}
             className={cn(
-              "inline-flex h-10 w-10 items-center justify-center rounded-lg border sm:hidden",
+              "inline-flex h-10 w-10 items-center justify-center rounded-lg border",
               "border-border/80 text-foreground",
               "hover:bg-white/60 dark:hover:bg-white/10",
             )}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
+          </div>
         </div>
 
         {mobileMenuOpen ? (
