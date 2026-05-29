@@ -1,66 +1,184 @@
-import { Clock3, MapPin, Search } from "lucide-react";
-import { PanelCard } from "@/components/dashboard/panel-card";
+"use client";
 
-const members = [
-  { initials: "SJ", name: "Sarah Johnson", status: "Present", in: "08:45 AM", duration: "3h 25m", location: "Remote" },
-  { initials: "MC", name: "Mike Chen", status: "Absent", in: "-", duration: "-", location: "Not checked in today" },
-  { initials: "ED", name: "Emily Davis", status: "Present", in: "09:02 AM", duration: "3h 08m", location: "Remote" },
-];
+import { useCallback, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { Clock3, Filter, MapPin, Search } from "lucide-react";
+import { toast } from "sonner";
+import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
+import { cn } from "@/lib/utils";
 
-export default function MembersPage() {
+type MemberRow = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  initials: string;
+  status: "Present" | "Absent";
+  checkInTime: string | null;
+  duration: string | null;
+  location: string | null;
+};
+
+type MembersResponse = {
+  summary: { total: number; present: number; absent: number };
+  members: MemberRow[];
+};
+
+type StatusFilter = "all" | "Present" | "Absent";
+
+export default function TeamPage() {
+  const [data, setData] = useState<MembersResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: payload } = await axios.get<MembersResponse>("/api/team/members");
+      setData(payload);
+    } catch {
+      setData(null);
+      toast.error("Could not load team members.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const filtered = useMemo(() => {
+    const members = data?.members ?? [];
+    const q = query.trim().toLowerCase();
+    return members.filter((member) => {
+      const matchesQuery =
+        !q ||
+        member.name.toLowerCase().includes(q) ||
+        member.email.toLowerCase().includes(q) ||
+        member.role.toLowerCase().includes(q);
+      const matchesStatus = statusFilter === "all" || member.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [data?.members, query, statusFilter]);
+
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em]">Members</h1>
-        <p className="text-muted-foreground">View who is checked in today</p>
+        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">Team Members</h1>
+        <p className="text-muted-foreground">View team attendance and status</p>
       </header>
+
       <section className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <p className="text-sm text-muted-foreground">Total</p>
-          <p className="mt-2 text-[2.2rem] font-semibold">8</p>
-        </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-sm text-emerald-700">Present</p>
-          <p className="mt-2 text-[2.2rem] font-semibold text-emerald-700">5</p>
-        </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-          <p className="text-sm text-amber-700">Absent</p>
-          <p className="mt-2 text-[2.2rem] font-semibold text-amber-700">3</p>
-        </div>
+        <StatSummaryCard label="Total Team" value={data?.summary.total ?? "—"} />
+        <StatSummaryCard label="Present" value={data?.summary.present ?? "—"} tone="success" />
+        <StatSummaryCard label="Absent" value={data?.summary.absent ?? "—"} tone="warning" />
       </section>
 
-      <PanelCard title="Directory">
-        <div className="rounded-xl border border-border bg-muted/50 px-4 py-3 text-muted-foreground">
-          <span className="inline-flex items-center gap-2">
-            <Search className="h-4 w-4" />
-            Search by name...
-          </span>
-        </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {members.map((member) => (
-            <article
-              key={member.name}
-              className={`rounded-2xl border p-4 ${member.status === "Present" ? "border-emerald-200 bg-emerald-50" : "border-border bg-card"}`}
+      <section className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="relative flex-1">
+            <span className="sr-only">Search team members</span>
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by name, email, or role..."
+              className="h-11 w-full rounded-xl border border-border bg-input-background py-2 pl-10 pr-3 text-sm text-foreground"
+            />
+          </label>
+          <div className="relative min-w-[160px]">
+            <Filter
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              aria-label="Filter by status"
+              className="h-11 w-full appearance-none rounded-xl border border-border bg-input-background py-2 pl-10 pr-8 text-sm text-foreground"
             >
-              <div className="flex items-start justify-between">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                  {member.initials}
-                </span>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs ${member.status === "Present" ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}
-                >
-                  {member.status}
-                </span>
-              </div>
-              <p className="mt-3 text-[1.35rem] font-semibold">{member.name}</p>
-              <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                <p className="inline-flex items-center gap-1"><Clock3 className="h-3.5 w-3.5" /> {member.in} · {member.duration}</p>
-                <p className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {member.location}</p>
-              </div>
-            </article>
-          ))}
+              <option value="all">All Status</option>
+              <option value="Present">Present</option>
+              <option value="Absent">Absent</option>
+            </select>
+          </div>
         </div>
-      </PanelCard>
+
+        {loading ? (
+          <p className="mt-6 text-sm text-muted-foreground">Loading team members…</p>
+        ) : filtered.length === 0 ? (
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {query || statusFilter !== "all" ? "No members match your filters." : "No team members yet."}
+          </p>
+        ) : (
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((member) => (
+              <article
+                key={member.id}
+                className={cn(
+                  "rounded-2xl border p-4 shadow-sm",
+                  member.status === "Present"
+                    ? "border-emerald-200/90 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/40"
+                    : "border-border/80 bg-card dark:bg-card",
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
+                        member.status === "Present"
+                          ? "bg-emerald-600 text-white"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {member.initials}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-foreground">{member.name}</p>
+                      <p className="text-sm text-muted-foreground">{member.role}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
+                      member.status === "Present"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {member.status}
+                  </span>
+                </div>
+
+                <p className="mt-3 text-sm text-muted-foreground">• {member.email}</p>
+
+                {member.status === "Present" && member.checkInTime ? (
+                  <div className="mt-3 space-y-1.5 text-sm text-emerald-800 dark:text-emerald-300">
+                    <p className="inline-flex items-center gap-1.5">
+                      <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      <span>
+                        {member.checkInTime} · {member.duration}
+                      </span>
+                    </p>
+                    <p className="inline-flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      <span>{member.location}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-center text-sm text-muted-foreground">Not checked in today</p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
