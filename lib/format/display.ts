@@ -56,3 +56,36 @@ export function isOnTimeCheckIn(checkedInAt: Date): boolean {
   const minutes = checkedInAt.getMinutes();
   return hours < 9 || (hours === 9 && minutes <= 15);
 }
+
+/** Consecutive calendar days (from today) with at least one on-time check-in. */
+export function computeOnTimeStreak(
+  records: Array<{ checkedInAt: Date }>,
+  isOnTime: (date: Date) => boolean = isOnTimeCheckIn,
+): number {
+  const onTimeDays = new Set(
+    records.filter((r) => isOnTime(r.checkedInAt)).map((r) => dayKey(r.checkedInAt)),
+  );
+
+  let streak = 0;
+  const cursor = startOfDay();
+
+  while (onTimeDays.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
+}
+
+/** Consecutive calendar days (from today) with any attendance. */
+export function computeAttendanceStreak(dayKeys: Set<string>): number {
+  let streak = 0;
+  const cursor = startOfDay();
+
+  while (dayKeys.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
+}

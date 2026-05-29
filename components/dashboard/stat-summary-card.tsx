@@ -1,23 +1,16 @@
+import { semanticSurfaces, type SemanticTone } from "@/lib/ui/semantic-surfaces";
 import { cn } from "@/lib/utils";
 
 type StatSummaryCardProps = {
   label: string;
   value: string | number;
-  tone?: "neutral" | "success" | "warning";
+  tone?: SemanticTone;
   className?: string;
 };
 
-const toneStyles = {
-  neutral: "border-border/80 bg-card text-foreground shadow-sm",
-  success:
-    "border-emerald-200/90 bg-emerald-50 text-emerald-900 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/50 dark:text-emerald-200",
-  warning:
-    "border-amber-200/90 bg-amber-50 text-amber-900 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-200",
-} as const;
-
 export function StatSummaryCard({ label, value, tone = "neutral", className }: StatSummaryCardProps) {
   return (
-    <div className={cn("rounded-2xl border p-5", toneStyles[tone], className)}>
+    <div className={cn("rounded-2xl border p-5 shadow-sm", semanticSurfaces[tone], className)}>
       <p
         className={cn(
           "text-sm font-medium",

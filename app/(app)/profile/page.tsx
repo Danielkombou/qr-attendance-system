@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { CalendarDays, Clock3, Medal, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { AchievementCard, type AchievementIcon } from "@/components/dashboard/achievement-card";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
-import { cn } from "@/lib/utils";
+import { StatusPill } from "@/components/dashboard/status-pill";
 
 type ProfileResponse = {
   user: {
@@ -30,6 +31,7 @@ type ProfileResponse = {
     status: "On Time" | "Late";
   }>;
   achievements: Array<{
+    id: AchievementIcon;
     title: string;
     description: string;
     active: boolean;
@@ -119,16 +121,9 @@ export default function ProfilePage() {
                       <td className="py-3 text-foreground">{row.checkOut}</td>
                       <td className="py-3 text-foreground">{row.duration}</td>
                       <td className="py-3">
-                        <span
-                          className={cn(
-                            "rounded-full px-3 py-1 text-xs font-medium",
-                            row.status === "Late"
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                              : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-                          )}
-                        >
+                        <StatusPill variant={row.status === "Late" ? "warning" : "success"}>
                           {row.status}
-                        </span>
+                        </StatusPill>
                       </td>
                     </tr>
                   ))}
@@ -141,18 +136,13 @@ export default function ProfilePage() {
         <PanelCard title="Achievements">
           <div className="space-y-3">
             {data.achievements.map((item) => (
-              <div
-                key={item.title}
-                className={cn(
-                  "rounded-xl border p-4 shadow-sm",
-                  item.active
-                    ? "border-emerald-200/90 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/40"
-                    : "border-border/80 bg-card",
-                )}
-              >
-                <p className="font-medium text-foreground">{item.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
-              </div>
+              <AchievementCard
+                key={item.id}
+                icon={item.id}
+                title={item.title}
+                description={item.description}
+                active={item.active}
+              />
             ))}
           </div>
         </PanelCard>

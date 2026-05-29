@@ -8,10 +8,10 @@
   --brand-accent: #5f6ed6;
   --muted-ink: var(--muted-foreground);
   --border-soft: var(--border);
-  --surface-card: #f4f5f9;
+  --surface-card: #ffffff;
   --section-bg: var(--background);
-  --section-muted-bg: #f2f2f7;
-  --chip-bg: #e6e6ee;
+  --section-muted-bg: #e4e8ee;
+  --chip-bg: #e4e8ee;
   --stat-green-bg: #c9efd4;
   --stat-green-ink: #187441;
   --stat-blue-bg: #d4e4ff;

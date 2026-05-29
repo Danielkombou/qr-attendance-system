@@ -5,6 +5,7 @@ import axios from "axios";
 import { Clock3, Filter, MapPin, Search } from "lucide-react";
 import { toast } from "sonner";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
+import { semanticSurfaces } from "@/lib/ui/semantic-surfaces";
 import { cn } from "@/lib/utils";
 
 type MemberRow = {
@@ -122,9 +123,7 @@ export default function TeamPage() {
                 key={member.id}
                 className={cn(
                   "rounded-2xl border p-4 shadow-sm",
-                  member.status === "Present"
-                    ? "border-emerald-200/90 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/40"
-                    : "border-border/80 bg-card dark:bg-card",
+                  member.status === "Present" ? semanticSurfaces.success : semanticSurfaces.neutral,
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -133,7 +132,7 @@ export default function TeamPage() {
                       className={cn(
                         "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
                         member.status === "Present"
-                          ? "bg-emerald-600 text-white"
+                          ? "bg-[var(--surface-success-fg)] text-white"
                           : "bg-muted text-muted-foreground",
                       )}
                     >
@@ -148,7 +147,7 @@ export default function TeamPage() {
                     className={cn(
                       "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
                       member.status === "Present"
-                        ? "bg-emerald-600 text-white"
+                        ? "bg-[var(--surface-success-fg)] text-white"
                         : "bg-muted text-muted-foreground",
                     )}
                   >
@@ -159,7 +158,7 @@ export default function TeamPage() {
                 <p className="mt-3 text-sm text-muted-foreground">• {member.email}</p>
 
                 {member.status === "Present" && member.checkInTime ? (
-                  <div className="mt-3 space-y-1.5 text-sm text-emerald-800 dark:text-emerald-300">
+                  <div className="mt-3 space-y-1.5 text-sm text-[var(--surface-success-fg)]">
                     <p className="inline-flex items-center gap-1.5">
                       <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       <span>

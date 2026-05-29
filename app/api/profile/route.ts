@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  computeAttendanceStreak,
+  computeOnTimeStreak,
   dayKey,
   employeeId,
   formatClockTime,
@@ -9,24 +11,11 @@ import {
   initialsFromName,
   isOnTimeCheckIn,
   roleLabel,
-  startOfDay,
 } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
 import { requireContext } from "@/lib/server/api-utils";
 
 export const runtime = "nodejs";
-
-function computeStreak(dayKeys: Set<string>): number {
-  let streak = 0;
-  const cursor = startOfDay();
-
-  while (dayKeys.has(dayKey(cursor))) {
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return streak;
-}
 
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
@@ -62,7 +51,9 @@ export async function GET(request: NextRequest) {
 
   const onTimeCount = records.filter((r) => isOnTimeCheckIn(r.checkedInAt)).length;
   const onTimeRate = records.length > 0 ? Math.round((onTimeCount / records.length) * 100) : 0;
-  const streak = computeStreak(dayKeys);
+  const streak = computeAttendanceStreak(dayKeys);
+  const onTimeStreak = computeOnTimeStreak(records);
+  const earlyBirdDays = records.filter((r) => r.checkedInAt.getHours() < 8).length;
 
   const recentAttendance = records.slice(0, 7).map((record) => ({
     date: formatShortDate(record.checkedInAt),
@@ -83,19 +74,28 @@ export async function GET(request: NextRequest) {
 
   const achievements = [
     {
+      id: "perfect-week" as const,
       title: "Perfect Week",
       description: "On time every day this week",
       active: streak >= 5 && onTimeRate >= 90,
     },
     {
+      id: "hundred-days" as const,
       title: "100 Days",
       description: "Completed 100 days of attendance",
       active: totalDays >= 100,
     },
     {
+      id: "early-bird" as const,
       title: "Early Bird",
       description: "Check in before 8 AM for 5 days",
-      active: records.filter((r) => r.checkedInAt.getHours() < 8).length >= 5,
+      active: earlyBirdDays >= 5,
+    },
+    {
+      id: "consistency-king" as const,
+      title: "Consistency King",
+      description: "30-day streak of on-time arrivals",
+      active: onTimeStreak >= 30,
     },
   ];
 
