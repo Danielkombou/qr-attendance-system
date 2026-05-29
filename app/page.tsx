@@ -12,7 +12,7 @@ export default function Home() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <main className="min-h-screen text-foreground">
+    <main id="main-content" className="min-h-screen text-foreground" tabIndex={-1}>
       <SiteNavbar />
 
       <section className="relative w-full">

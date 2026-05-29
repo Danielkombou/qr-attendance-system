@@ -142,7 +142,7 @@ export default function CheckInPage() {
       <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
           <div className="flex flex-col items-center">
-            <div className="rounded-2xl border border-border bg-background p-8">
+            <div className="rounded-2xl border border-border/80 bg-card p-8 shadow-sm">
               <div className="h-44 w-44 rounded-md bg-[linear-gradient(90deg,#000_50%,transparent_50%),linear-gradient(#000_50%,transparent_50%)] bg-size-[24px_24px] bg-repeat opacity-90" />
             </div>
             <p className="mt-5 text-sm text-muted-foreground">Your Code</p>

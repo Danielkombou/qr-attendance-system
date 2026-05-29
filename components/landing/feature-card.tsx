@@ -14,21 +14,21 @@ export function FeatureCard({ feature, index, reduceMotion }: FeatureCardProps) 
 
   return (
     <motion.article
-      initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
+      initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      whileHover={reduceMotion ? undefined : { y: -6, scale: 1.01 }}
+      whileHover={reduceMotion ? undefined : { y: -4, scale: 1.01 }}
       transition={
         reduceMotion
           ? undefined
-          : { duration: 0.35, ease: "easeOut", delay: index * 0.06 }
+          : { duration: 0.18, ease: "easeOut", delay: index * 0.025 }
       }
-      viewport={{ once: true, amount: 0.25 }}
-      className="rounded-xl border border-border bg-muted px-5 py-6 text-center shadow-[0_8px_24px_-20px_rgba(10,14,38,0.4)] sm:px-6"
+      viewport={{ once: true, amount: 0.2 }}
+      className="rounded-xl border border-border/80 bg-card px-5 py-6 text-center text-card-foreground shadow-sm sm:px-6"
     >
       <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-accent text-foreground">
-        <FeatureIcon className="h-[18px] w-[18px]" />
+        <FeatureIcon className="h-[18px] w-[18px]" aria-hidden />
       </span>
-      <h3 className="mt-5 text-[1.45rem] font-semibold tracking-[-0.03em] sm:text-[1.65rem]">
+      <h3 className="mt-5 text-[1.45rem] font-semibold tracking-[-0.03em] text-foreground sm:text-[1.65rem]">
         {feature.title}
       </h3>
       <p className="mx-auto mt-2 max-w-[18rem] text-base leading-[1.35] text-muted-foreground sm:text-[1.05rem]">

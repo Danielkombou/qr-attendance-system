@@ -21,7 +21,7 @@ export function ActivityList({ items }: ActivityListProps) {
               {entry.initials}
             </span>
             <span>
-              <span className="block font-medium">{entry.name}</span>
+              <span className="block font-medium text-foreground">{entry.name}</span>
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 {entry.action}
                 <span className={`h-2 w-2 rounded-full ${entry.dotClassName ?? "bg-primary"}`} />

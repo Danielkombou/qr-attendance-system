@@ -25,7 +25,7 @@ export default function ReportsPage() {
       </section>
 
       <PanelCard title="Weekly Attendance">
-        <div className="h-72 rounded-xl border border-border bg-background p-4">
+        <div className="h-72 rounded-xl border border-border/80 bg-card p-4 shadow-sm">
           <div className="grid h-full grid-cols-5 items-end gap-6">
             {[42, 45, 43, 44, 41].map((value, index) => (
               <div key={value + index} className="flex h-full flex-col justify-end">

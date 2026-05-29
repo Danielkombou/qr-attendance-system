@@ -31,7 +31,14 @@ export default function UserDashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <PanelCard title="Recent Check-ins" rightSlot={<span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">5 Active</span>}>
+        <PanelCard
+          title="Recent Check-ins"
+          rightSlot={
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              5 Active
+            </span>
+          }
+        >
           <ul className="divide-y divide-border">
             {recentCheckIns.map((entry) => (
               <li key={entry.name} className="flex items-center justify-between py-3">
@@ -39,7 +46,7 @@ export default function UserDashboardPage() {
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                     {entry.initials}
                   </span>
-                  <span className="block font-medium">{entry.name}</span>
+                  <span className="block font-medium text-foreground">{entry.name}</span>
                 </div>
                 <span className="text-right text-sm">
                   <span className="block font-medium">{entry.duration}</span>

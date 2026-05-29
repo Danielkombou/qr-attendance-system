@@ -93,17 +93,21 @@ export default function AdminDashboardPage() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-border/80 bg-card p-5 text-card-foreground shadow-sm">
           <p className="text-sm text-muted-foreground">Total Users</p>
-          <p className="mt-2 text-[2.2rem] font-semibold">{metrics?.totalUsers ?? "—"}</p>
+          <p className="mt-2 text-[2.2rem] font-semibold text-foreground">{metrics?.totalUsers ?? "—"}</p>
         </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-sm text-emerald-700">Checked in now</p>
-          <p className="mt-2 text-[2.2rem] font-semibold text-emerald-700">{metrics?.activeNow ?? "—"}</p>
+        <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50 p-5 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/50">
+          <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Checked in now</p>
+          <p className="mt-2 text-[2.2rem] font-semibold text-emerald-900 dark:text-emerald-200">
+            {metrics?.activeNow ?? "—"}
+          </p>
         </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-          <p className="text-sm text-amber-700">Check-ins today</p>
-          <p className="mt-2 text-[2.2rem] font-semibold text-amber-700">{metrics?.todayCheckIns ?? "—"}</p>
+        <div className="rounded-2xl border border-amber-200/90 bg-amber-50 p-5 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/50">
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Check-ins today</p>
+          <p className="mt-2 text-[2.2rem] font-semibold text-amber-900 dark:text-amber-200">
+            {metrics?.todayCheckIns ?? "—"}
+          </p>
         </div>
       </section>
 

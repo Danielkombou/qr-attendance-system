@@ -53,17 +53,19 @@ export function AppShell({ variant, children }: AppShellProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground"
+                    className="inline-flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 text-sm leading-none text-foreground"
                   >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
           ) : null}
         </header>
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 lg:px-8" tabIndex={-1}>
+          {children}
+        </main>
       </div>
     </div>
   );
