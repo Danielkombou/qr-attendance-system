@@ -1,66 +1,22 @@
 "use client";
 
-import {
-  ArrowRight,
-  Check,
-  Menu,
-  X,
-} from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { BrandLogo } from "@/components/brand-logo";
 import { FeatureCard } from "@/components/landing/feature-card";
-import { NavActions } from "@/components/landing/nav-actions";
+import { SiteNavbar } from "@/components/landing/site-navbar";
 import { features, stats, valuePoints } from "@/components/landing/data";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "motion/react";
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    const closeMenuOnDesktop = () => {
-      if (window.innerWidth >= 640) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", closeMenuOnDesktop);
-    return () => window.removeEventListener("resize", closeMenuOnDesktop);
-  }, []);
 
   return (
     <main className="min-h-screen text-foreground">
-      <section className="relative w-full overflow-hidden">
-        <header className="relative z-10 w-full border-b border-border bg-background/75 backdrop-blur-md">
-          <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
-            <div className="flex w-full items-center justify-between gap-3">
-              <BrandLogo className="min-w-0" />
-              <div className="hidden sm:block">
-                <NavActions />
-              </div>
-              <button
-                type="button"
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={mobileMenuOpen}
-                aria-controls="mobile-menu"
-                onClick={() => setMobileMenuOpen((value) => !value)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground sm:hidden"
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
-            </div>
+      <SiteNavbar />
 
-            {mobileMenuOpen ? (
-              <div id="mobile-menu" className="mt-3 sm:hidden">
-                <NavActions mobile onNavigate={() => setMobileMenuOpen(false)} />
-              </div>
-            ) : null}
-          </div>
-        </header>
-
-        <div className="relative z-10 flex min-h-[calc(82vh-82px)] items-center">
+      <section className="relative w-full">
+        <div className="relative flex min-h-[calc(82vh-5rem)] items-center">
           <div className="mx-auto flex w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-10 lg:py-14">
             <div className="flex w-full flex-col items-center text-center">
               <p className="mb-5 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground sm:mb-6 sm:text-sm">
