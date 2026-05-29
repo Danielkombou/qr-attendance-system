@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getRequestContext, isAdmin } from "@/lib/server/request-context";

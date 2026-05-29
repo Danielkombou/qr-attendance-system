@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BarChart3,
   Gauge,
@@ -5,13 +7,13 @@ import {
   Settings,
   Users,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
-import type { ComponentType } from "react";
 
 export type DashboardNavItem = {
   label: string;
   href: string;
-  icon: ComponentType<{ className?: string }>;
+  icon: LucideIcon;
 };
 
 export const userNavigation: DashboardNavItem[] = [

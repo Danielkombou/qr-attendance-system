@@ -5,14 +5,26 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/dashboard/sidebar";
-import type { DashboardNavItem } from "@/components/dashboard/navigation";
+import {
+  adminNavigation,
+  userNavigation,
+  type DashboardNavItem,
+} from "@/components/dashboard/navigation";
+
+type AppShellVariant = "user" | "admin";
+
+const navigationByVariant: Record<AppShellVariant, DashboardNavItem[]> = {
+  user: userNavigation,
+  admin: adminNavigation,
+};
 
 type AppShellProps = {
-  items: DashboardNavItem[];
+  variant: AppShellVariant;
   children: React.ReactNode;
 };
 
-export function AppShell({ items, children }: AppShellProps) {
+export function AppShell({ variant, children }: AppShellProps) {
+  const items = navigationByVariant[variant];
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (

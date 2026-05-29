@@ -53,4 +53,13 @@ a {
   html {
     @apply font-sans;
   }
+  input,
+  textarea,
+  select {
+    @apply text-foreground;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-muted-foreground;
+  }
 }

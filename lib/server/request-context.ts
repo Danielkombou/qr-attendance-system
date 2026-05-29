@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "@/lib/roles";
 import type { NextRequest } from "next/server";
 
 export type RequestContext = {

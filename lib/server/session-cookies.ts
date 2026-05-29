@@ -1,4 +1,4 @@
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 import { NextResponse } from "next/server";
 
 type SessionCookieInput = {
