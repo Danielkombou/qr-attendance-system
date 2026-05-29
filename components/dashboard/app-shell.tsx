@@ -28,10 +28,10 @@ export function AppShell({ variant, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen">
       <Sidebar items={items} />
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="border-b border-border bg-background px-4 py-3 lg:hidden">
+        <header className="border-b border-border bg-background/75 px-4 py-3 backdrop-blur-md lg:hidden">
           <Button
             variant="outline"
             size="sm"

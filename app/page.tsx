@@ -31,9 +31,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen text-foreground">
       <section className="relative w-full overflow-hidden">
-        <header className="relative z-10 w-full border-b border-border bg-background">
+        <header className="relative z-10 w-full border-b border-border bg-background/75 backdrop-blur-md">
           <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
             <div className="flex w-full items-center justify-between gap-3">
               <BrandLogo className="min-w-0" />
@@ -91,7 +91,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-background">
+      <section>
         <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-10 lg:py-20">
           <h2 className="text-center text-2xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Powerful Features
@@ -109,7 +109,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-muted/40">
+      <section className="bg-muted/30 backdrop-blur-sm">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-[1.05fr_0.95fr] md:items-center lg:gap-14 lg:px-10 lg:py-20">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
@@ -154,7 +154,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-background">
+      <section>
         <div className="mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-6 lg:py-16">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-[2.1rem]">
             Ready to Transform Your Attendance Tracking?
@@ -173,7 +173,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-border bg-background">
+      <footer className="border-t border-border bg-background/75 backdrop-blur-md">
           <div className="mx-auto w-full max-w-7xl px-4 py-6 text-center text-xs text-muted-foreground sm:px-6 lg:px-10">
             <p>© 2026 AttendX. All rights reserved.</p>
           </div>

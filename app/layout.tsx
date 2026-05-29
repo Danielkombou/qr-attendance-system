@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Plus_Jakarta_Sans, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { GridBackground } from "@/components/grid-background";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -47,7 +48,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <GridBackground />
+          <div className="relative flex min-h-full flex-col">{children}</div>
           <Toaster richColors closeButton position="top-right" />
         </ThemeProvider>
       </body>

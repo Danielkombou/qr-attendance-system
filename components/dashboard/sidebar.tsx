@@ -14,7 +14,7 @@ export function Sidebar({ items }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-[232px] shrink-0 border-r border-border bg-background lg:block">
+    <aside className="hidden w-[232px] shrink-0 border-r border-border bg-background/75 backdrop-blur-md lg:block">
       <div className="sticky top-0 flex h-screen flex-col px-3 py-5">
         <BrandLogo className="px-2" />
         <nav className="mt-8 space-y-1">
