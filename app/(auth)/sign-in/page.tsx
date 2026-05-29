@@ -6,7 +6,7 @@ export default function SignInPage() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-10"
+      className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 pb-10 pt-16 sm:pt-20"
     >
       <h1 className="text-[2rem] font-semibold">Sign In</h1>
       <p className="mt-2 text-muted-foreground">
