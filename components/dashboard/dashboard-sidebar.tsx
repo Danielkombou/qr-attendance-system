@@ -86,6 +86,10 @@ export function DashboardSidebar({ items }: DashboardSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
+      <SidebarFooter className="border-t border-sidebar-border/80 p-3">
+        <UserAccountMenu placement="sidebar" />
+      </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );
