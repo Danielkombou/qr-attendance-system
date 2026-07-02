@@ -5,6 +5,7 @@ import axios from "axios";
 import { Clock3, Filter, MapPin, Search } from "lucide-react";
 import { toast } from "sonner";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
+import { PresenceDot } from "@/components/dashboard/presence-dot";
 import { semanticSurfaces } from "@/lib/ui/semantic-surfaces";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ type MemberRow = {
   role: string;
   initials: string;
   status: "Present" | "Absent";
+  online: boolean;
   checkInTime: string | null;
   duration: string | null;
   location: string | null;
@@ -128,15 +130,21 @@ export default function TeamPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-                        member.status === "Present"
-                          ? "bg-[var(--surface-success-fg)] text-white"
-                          : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {member.initials}
+                    <span className="relative inline-flex shrink-0">
+                      <span
+                        className={cn(
+                          "inline-flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold",
+                          member.online
+                            ? "bg-[var(--surface-success-fg)] text-white"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {member.initials}
+                      </span>
+                      <PresenceDot
+                        online={member.online}
+                        className="absolute -bottom-0.5 -right-0.5"
+                      />
                     </span>
                     <div>
                       <p className="font-semibold text-foreground">{member.name}</p>

@@ -9,7 +9,7 @@ AttendX is a simple attendance tracking app built with the Next.js App Router. U
 - Public landing and auth (`/`, `/sign-in`, `/get-started`)
 - User app routes (`/dashboard`, `/check-in`, `/team`, `/reports`, `/profile`, `/settings`)
 - Admin routes (`/admin/dashboard`, `/admin/users`)
-- Attendance flow (check-in/check-out with planned/completed tasks, GPS + site geofence)
+- Attendance flow (check-in/check-out with planned/completed tasks, office Wi‑Fi verification)
 - Admin user search and role changes (`/admin/dashboard`)
 - Short-lived signed QR session issuance/validation (admin-issued)
 

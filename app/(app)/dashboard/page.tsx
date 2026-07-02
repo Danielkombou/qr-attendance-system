@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { ArrowUpRight, Clock3, TrendingUp, Users } from "lucide-react";
 import { ActivityList } from "@/components/dashboard/activity-list";
+import { AvatarWithPresence } from "@/components/dashboard/presence-dot";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
@@ -100,9 +101,7 @@ export default function UserDashboardPage() {
               {presentMembers.slice(0, 5).map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                      {entry.initials}
-                    </span>
+                    <AvatarWithPresence initials={entry.initials} online />
                     <span className="block font-medium text-foreground">{entry.name}</span>
                   </div>
                   <span className="text-right text-sm">

@@ -3,12 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { badRequest, requireContext } from "@/lib/server/api-utils";
-import { haversineDistanceMeters } from "@/lib/server/geofence";
-
-function toFloat(value: unknown): number | null {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : null;
-}
+import { getClientIp } from "@/lib/server/client-ip";
+import { verifyOfficeNetwork } from "@/lib/server/network-gate";
 
 export async function POST(request: NextRequest) {
   const { error, context } = requireContext(request);
@@ -17,14 +13,14 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const siteId = (body?.siteId as string | undefined)?.trim();
   const plannedTasks = (body?.plannedTasks as string | undefined)?.trim();
-  const latitude = toFloat(body?.latitude);
-  const longitude = toFloat(body?.longitude);
 
-  if (!siteId || !plannedTasks) {
-    return badRequest("siteId, latitude, longitude, and plannedTasks are required");
+  if (!plannedTasks) {
+    return badRequest("plannedTasks is required");
   }
-  if (latitude === null || longitude === null) {
-    return badRequest("latitude and longitude are required");
+
+  const network = verifyOfficeNetwork(getClientIp(request));
+  if (!network.allowed) {
+    return NextResponse.json({ error: network.reason, clientIp: network.clientIp }, { status: 403 });
   }
 
   const open = await prisma.attendanceRecord.findFirst({
@@ -38,24 +34,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const site = await prisma.site.findFirst({ where: { id: siteId, isActive: true } });
-  if (!site) {
-    return NextResponse.json({ error: "Site not found" }, { status: 404 });
-  }
+  const site = siteId
+    ? await prisma.site.findFirst({ where: { id: siteId, isActive: true } })
+    : await prisma.site.findFirst({ where: { isActive: true }, orderBy: { createdAt: "asc" } });
 
-  const distanceM = haversineDistanceMeters(latitude, longitude, site.latitude, site.longitude);
-  const insideFence = distanceM <= site.allowedRadiusM;
+  if (!site) {
+    return NextResponse.json({ error: "No active office site configured" }, { status: 404 });
+  }
 
   const record = await prisma.attendanceRecord.create({
     data: {
       userId: context.userId,
-      siteId,
+      siteId: site.id,
       status: AttendanceStatus.CHECKED_IN,
       checkedInAt: new Date(),
-      checkInLat: latitude,
-      checkInLng: longitude,
-      verificationLevel: insideFence ? VerificationLevel.VERIFIED : VerificationLevel.REVIEW,
-      confidenceScore: insideFence ? 95 : 45,
+      verificationLevel: VerificationLevel.VERIFIED,
+      confidenceScore: 95,
       plannedTasks,
     },
   });
@@ -63,10 +57,10 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       record,
-      geofence: {
-        insideFence,
-        distanceM: Math.round(distanceM),
-        allowedRadiusM: site.allowedRadiusM,
+      network: {
+        verified: true,
+        clientIp: network.clientIp,
+        siteName: site.name,
       },
     },
     { status: 201 },

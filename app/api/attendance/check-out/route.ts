@@ -4,25 +4,15 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { badRequest, requireContext } from "@/lib/server/api-utils";
 
-function toFloat(value: unknown): number | null {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : null;
-}
-
 export async function POST(request: NextRequest) {
   const { error, context } = requireContext(request);
   if (error || !context) return error;
 
   const body = await request.json().catch(() => null);
   const completedTasks = (body?.completedTasks as string | undefined)?.trim();
-  const latitude = toFloat(body?.latitude);
-  const longitude = toFloat(body?.longitude);
 
   if (!completedTasks) {
     return badRequest("completedTasks is required");
-  }
-  if (latitude === null || longitude === null) {
-    return badRequest("latitude and longitude are required");
   }
 
   const open = await prisma.attendanceRecord.findFirst({
@@ -45,8 +35,6 @@ export async function POST(request: NextRequest) {
       status: AttendanceStatus.CHECKED_OUT,
       checkedOutAt,
       workedMinutes,
-      checkOutLat: latitude,
-      checkOutLng: longitude,
       completedTasks,
     },
   });

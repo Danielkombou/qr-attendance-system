@@ -48,12 +48,10 @@ export async function GET(request: NextRequest) {
 
     let checkInTime: string | null = null;
     let duration: string | null = null;
-    let location: string | null = null;
 
     if (record && present) {
       checkInTime = formatClockTime(record.checkedInAt);
       duration = formatDurationMinutes(minutesSince(record.checkedInAt, now));
-      location = record.site?.name ?? "Remote";
     }
 
     return {
@@ -63,9 +61,10 @@ export async function GET(request: NextRequest) {
       role: roleLabel(user.role),
       initials: initialsFromName(user.name),
       status: present ? ("Present" as const) : ("Absent" as const),
+      online: present,
       checkInTime,
       duration,
-      location,
+      location: present ? (record.site?.name ?? "Office") : null,
     };
   });
 
