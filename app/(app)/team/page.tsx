@@ -1,56 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useMemo, useState } from "react";
 import { Clock3, Filter, MapPin, Search } from "lucide-react";
-import { toast } from "sonner";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
 import { PresenceDot } from "@/components/dashboard/presence-dot";
+import { useTeamMembers } from "@/lib/queries/hooks";
 import { semanticSurfaces } from "@/lib/ui/semantic-surfaces";
 import { cn } from "@/lib/utils";
-
-type MemberRow = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  initials: string;
-  status: "Present" | "Absent";
-  online: boolean;
-  checkInTime: string | null;
-  duration: string | null;
-  location: string | null;
-};
-
-type MembersResponse = {
-  summary: { total: number; present: number; absent: number };
-  members: MemberRow[];
-};
 
 type StatusFilter = "all" | "Present" | "Absent";
 
 export default function TeamPage() {
-  const [data, setData] = useState<MembersResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, isError } = useTeamMembers();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: payload } = await axios.get<MembersResponse>("/api/team/members");
-      setData(payload);
-    } catch {
-      setData(null);
-      toast.error("Could not load team members.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const filtered = useMemo(() => {
     const members = data?.members ?? [];
@@ -112,8 +75,10 @@ export default function TeamPage() {
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <p className="mt-6 text-sm text-muted-foreground">Loading team members…</p>
+        ) : isError ? (
+          <p className="mt-6 text-sm text-muted-foreground">Could not load team members.</p>
         ) : filtered.length === 0 ? (
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {query || statusFilter !== "all" ? "No members match your filters." : "No team members yet."}
@@ -141,10 +106,7 @@ export default function TeamPage() {
                       >
                         {member.initials}
                       </span>
-                      <PresenceDot
-                        online={member.online}
-                        className="absolute -bottom-0.5 -right-0.5"
-                      />
+                      <PresenceDot online={member.online} className="absolute -bottom-0.5 -right-0.5" />
                     </span>
                     <div>
                       <p className="font-semibold text-foreground">{member.name}</p>
@@ -171,6 +133,7 @@ export default function TeamPage() {
                       <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       <span>
                         {member.checkInTime} · {member.duration}
+                        {member.checkInNote ? ` · ${member.checkInNote}` : ""}
                       </span>
                     </p>
                     <p className="inline-flex items-center gap-1.5">

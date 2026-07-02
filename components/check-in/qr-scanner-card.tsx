@@ -69,7 +69,7 @@ export function QrScannerCard({
                 initial={{ top: "8%" }}
                 animate={{ top: ["8%", "88%", "8%"] }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 1.4, ease: "easeInOut", repeat: scanning ? 0 : 0 }}
+                transition={{ duration: 0.7, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
               />
             ) : null}
           </AnimatePresence>

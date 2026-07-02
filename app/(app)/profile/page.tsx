@@ -1,70 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { CalendarDays, Clock3, Medal, TrendingUp } from "lucide-react";
-import { toast } from "sonner";
 import { AchievementCard, type AchievementIcon } from "@/components/dashboard/achievement-card";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
-
-type ProfileResponse = {
-  user: {
-    name: string;
-    email: string;
-    role: string;
-    initials: string;
-    employeeId: string;
-  };
-  stats: {
-    totalDays: number;
-    avgHoursPerDay: string;
-    onTimeRate: string;
-    currentStreak: string;
-  };
-  recentAttendance: Array<{
-    date: string;
-    checkIn: string;
-    checkOut: string;
-    duration: string;
-    status: string;
-    checkoutNote: string | null;
-  }>;
-  achievements: Array<{
-    id: AchievementIcon;
-    title: string;
-    description: string;
-    active: boolean;
-  }>;
-};
+import { useProfile } from "@/lib/queries/hooks";
 
 export default function ProfilePage() {
-  const [data, setData] = useState<ProfileResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, isError } = useProfile();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: payload } = await axios.get<ProfileResponse>("/api/profile");
-      setData(payload);
-    } catch {
-      setData(null);
-      toast.error("Could not load profile.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  if (loading) {
+  if (isLoading) {
     return <p className="text-sm text-muted-foreground">Loading profile…</p>;
   }
 
-  if (!data) {
+  if (isError || !data) {
     return <p className="text-sm text-muted-foreground">Profile unavailable.</p>;
   }
 
@@ -144,7 +94,7 @@ export default function ProfilePage() {
             {data.achievements.map((item) => (
               <AchievementCard
                 key={item.id}
-                icon={item.id}
+                icon={item.id as AchievementIcon}
                 title={item.title}
                 description={item.description}
                 active={item.active}

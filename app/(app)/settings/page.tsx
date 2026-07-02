@@ -1,17 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { Button } from "@/components/ui/button";
-
-type WorkHoursResponse = {
-  settings: {
-    startTime: string;
-    endTime: string;
-  };
-};
+import { useUpdateWorkHoursMutation, useWorkHours } from "@/lib/queries/hooks";
 
 function toInputTime(display: string): string {
   const match = display.match(/(\d{1,2}):(\d{2})/);
@@ -22,42 +16,28 @@ function toInputTime(display: string): string {
 }
 
 export default function SettingsPage() {
+  const { data: workHours, isLoading } = useWorkHours();
+  const updateWorkHours = useUpdateWorkHoursMutation();
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("19:00");
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get<WorkHoursResponse>("/api/admin/attendance-settings");
-      setStartTime(toInputTime(data.settings.startTime));
-      setEndTime(toInputTime(data.settings.endTime));
-    } catch {
-      toast.error("Could not load working hours.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (workHours) {
+      setStartTime(toInputTime(workHours.startTime));
+      setEndTime(toInputTime(workHours.endTime));
+    }
+  }, [workHours]);
 
   async function saveWorkHours() {
-    setSaving(true);
     try {
-      await axios.patch("/api/admin/attendance-settings", { startTime, endTime });
+      await updateWorkHours.mutateAsync({ startTime, endTime });
       toast.success("Working hours updated.");
-      await load();
     } catch (err) {
       const message =
         err instanceof AxiosError
           ? (err.response?.data as { error?: string } | undefined)?.error ?? "Update failed."
           : "Update failed.";
       toast.error(message);
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -92,7 +72,7 @@ export default function SettingsPage() {
           Default is 9:00 AM – 7:00 PM. Early check-ins earn bonus credit; late check-ins and after-hours
           check-outs are recorded.
         </p>
-        {loading ? (
+        {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -116,8 +96,12 @@ export default function SettingsPage() {
             </label>
           </div>
         )}
-        <Button className="mt-4" disabled={saving || loading} onClick={() => void saveWorkHours()}>
-          {saving ? "Saving…" : "Save Working Hours"}
+        <Button
+          className="mt-4"
+          disabled={updateWorkHours.isPending || isLoading}
+          onClick={() => void saveWorkHours()}
+        >
+          {updateWorkHours.isPending ? "Saving…" : "Save Working Hours"}
         </Button>
         <p className="mt-2 text-xs text-muted-foreground">Admin role required to save changes.</p>
       </PanelCard>
