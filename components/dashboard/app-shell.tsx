@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
-import { ShellActions } from "@/components/dashboard/shell-actions";
+import { UserAccountMenu } from "@/components/dashboard/user-account-menu";
 import {
   adminNavigation,
   userNavigation,
@@ -33,13 +33,13 @@ export function AppShell({ variant, children }: AppShellProps) {
     <SidebarProvider defaultOpen>
       <DashboardSidebar items={items} />
       <SidebarInset className="min-h-svh bg-transparent">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border/80 bg-card/85 px-4 backdrop-blur-md supports-backdrop-filter:bg-card/70">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border/80 bg-card/85 px-4 backdrop-blur-md supports-backdrop-filter:bg-card/70 sm:px-6">
           <SidebarTrigger className="-ml-1 text-foreground" />
-          <Separator orientation="vertical" className="mr-1 hidden h-4 md:block" />
+          <Separator orientation="vertical" className="hidden h-4 md:block" />
           <div className="flex min-w-0 flex-1 items-center">
             <p className="truncate text-sm font-medium text-muted-foreground md:hidden">AttendX</p>
           </div>
-          <ShellActions layout="toolbar" />
+          <UserAccountMenu placement="header" className="md:hidden" />
         </header>
         <div id="main-content" className="flex-1 px-4 py-6 sm:px-6 lg:px-8" tabIndex={-1}>
           {children}

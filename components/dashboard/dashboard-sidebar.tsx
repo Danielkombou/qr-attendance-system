@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { QrCode } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
-import { ShellActions } from "@/components/dashboard/shell-actions";
+import { UserAccountMenu } from "@/components/dashboard/user-account-menu";
 import type { DashboardNavItem } from "@/components/dashboard/navigation";
 import {
   Sidebar,
@@ -33,7 +33,7 @@ function SidebarBrand() {
     return (
       <Link
         href="/dashboard"
-        className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+        className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"
         aria-label="AttendX home"
       >
         <QrCode className="size-4" strokeWidth={2.2} aria-hidden />
@@ -46,16 +46,19 @@ function SidebarBrand() {
 
 export function DashboardSidebar({ items }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" className="border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border/80 p-3">
+      <SidebarHeader className="border-b border-sidebar-border/80 p-4">
         <SidebarBrand />
       </SidebarHeader>
-      <SidebarContent className="px-2 py-3">
+
+      <SidebarContent className="px-3 py-4">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1.5">
               {items.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
@@ -66,13 +69,14 @@ export function DashboardSidebar({ items }: DashboardSidebarProps) {
                       tooltip={item.label}
                       size="lg"
                       className={cn(
+                        "h-11 rounded-xl px-3",
                         active &&
                           "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground",
                       )}
                       render={<Link href={item.href} />}
                     >
-                      <Icon className="size-4 shrink-0" aria-hidden />
-                      <span>{item.label}</span>
+                      <Icon className="size-[1.125rem] shrink-0" aria-hidden />
+                      {!collapsed ? <span>{item.label}</span> : null}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -81,9 +85,7 @@ export function DashboardSidebar({ items }: DashboardSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border/80 p-2">
-        <ShellActions layout="sidebar" />
-      </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );
