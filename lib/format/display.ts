@@ -1,3 +1,5 @@
+import { isOnTimeCheckIn } from "@/lib/format/attendance-timing";
+
 export function initialsFromName(name: string): string {
   return name
     .trim()
@@ -51,7 +53,7 @@ export function employeeId(userId: string, createdAt: Date): string {
   return `EMP-${createdAt.getFullYear()}-${userId.slice(-4).toUpperCase()}`;
 }
 
-export { isOnTimeCheckIn } from "@/lib/format/attendance-timing";
+export { isOnTimeCheckIn };
 
 /** Consecutive calendar days (from today) with at least one on-time check-in. */
 export function computeOnTimeStreak(
