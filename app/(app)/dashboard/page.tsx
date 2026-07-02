@@ -16,6 +16,8 @@ type MemberRow = {
   status: "Present" | "Absent";
   checkInTime: string | null;
   duration: string | null;
+  location: string | null;
+  checkInNote: string | null;
 };
 
 type MembersResponse = {
@@ -50,7 +52,7 @@ export default function UserDashboardPage() {
         id: member.id,
         initials: member.initials,
         name: member.name,
-        action: "Checked In",
+        action: member.location ? `Checked in · ${member.location}` : "Checked in",
         time: member.checkInTime ?? "—",
         dotClassName:
           index % 2 === 0 ? "bg-[var(--surface-success-fg)]" : "bg-[var(--surface-warning-fg)]",
@@ -102,11 +104,19 @@ export default function UserDashboardPage() {
                 <li key={entry.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
                     <AvatarWithPresence initials={entry.initials} online />
-                    <span className="block font-medium text-foreground">{entry.name}</span>
+                    <div>
+                      <span className="block font-medium text-foreground">{entry.name}</span>
+                      {entry.location ? (
+                        <span className="text-sm text-muted-foreground">{entry.location}</span>
+                      ) : null}
+                    </div>
                   </div>
                   <span className="text-right text-sm">
                     <span className="block font-medium text-foreground">{entry.duration ?? "—"}</span>
-                    <span className="text-muted-foreground">{entry.checkInTime ?? "—"}</span>
+                    <span className="text-muted-foreground">
+                      {entry.checkInTime ?? "—"}
+                      {entry.checkInNote ? ` · ${entry.checkInNote}` : ""}
+                    </span>
                   </span>
                 </li>
               ))}

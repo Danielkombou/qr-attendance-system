@@ -43,6 +43,20 @@ async function main() {
     }),
   );
 
+  await withRetry("attendanceSettings.upsert", () =>
+    prisma.attendanceSettings.upsert({
+      where: { id: "default" },
+      update: {},
+      create: {
+        id: "default",
+        startHour: 9,
+        startMinute: 0,
+        endHour: 19,
+        endMinute: 0,
+      },
+    }),
+  );
+
   console.log("Seed complete. Default site id: seed-main-site");
   console.log("Next: sign up at /get-started, then run `node prisma/promote-admin.js <email>` to grant ADMIN.");
 }

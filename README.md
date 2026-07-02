@@ -9,7 +9,7 @@ AttendX is a simple attendance tracking app built with the Next.js App Router. U
 - Public landing and auth (`/`, `/sign-in`, `/get-started`)
 - User app routes (`/dashboard`, `/check-in`, `/team`, `/reports`, `/profile`, `/settings`)
 - Admin routes (`/admin/dashboard`, `/admin/users`)
-- Attendance flow (check-in/check-out with planned/completed tasks, office Wi‑Fi verification)
+- Attendance flow (check-in/check-out with planned/completed tasks, GPS location, and work-hour timing)
 - Admin user search and role changes (`/admin/dashboard`)
 - Short-lived signed QR session issuance/validation (admin-issued)
 
@@ -56,8 +56,6 @@ DATABASE_URL=postgresql://user:password@host:5432/attendx
 BETTER_AUTH_SECRET=replace-with-a-strong-secret
 BETTER_AUTH_URL=http://localhost:3001
 QR_TOKEN_SECRET=replace-with-a-strong-secret
-# Public IP or CIDR of your office router (comma-separated). See .env.example.
-ALLOWED_CHECKIN_IPS=
 ```
 
 If sign-up or API calls fail with `ETIMEDOUT` on Prisma, the app cannot reach PostgreSQL — check Neon/project status, firewall, and that `DATABASE_URL` is correct (try Neon’s pooled connection string from the dashboard).

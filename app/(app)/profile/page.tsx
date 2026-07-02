@@ -28,7 +28,8 @@ type ProfileResponse = {
     checkIn: string;
     checkOut: string;
     duration: string;
-    status: "On Time" | "Late";
+    status: string;
+    checkoutNote: string | null;
   }>;
   achievements: Array<{
     id: AchievementIcon;
@@ -121,9 +122,14 @@ export default function ProfilePage() {
                       <td className="py-3 text-foreground">{row.checkOut}</td>
                       <td className="py-3 text-foreground">{row.duration}</td>
                       <td className="py-3">
-                        <StatusPill variant={row.status === "Late" ? "warning" : "success"}>
-                          {row.status}
-                        </StatusPill>
+                        <div className="space-y-1">
+                          <StatusPill variant={row.status === "Late" ? "warning" : "success"}>
+                            {row.status}
+                          </StatusPill>
+                          {row.checkoutNote ? (
+                            <p className="text-xs text-muted-foreground">{row.checkoutNote}</p>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ))}
