@@ -24,6 +24,17 @@ enum VerificationLevel {
   REJECTED
 }
 
+enum CheckInTiming {
+  EARLY
+  ON_TIME
+  LATE
+}
+
+enum CheckOutTiming {
+  ON_TIME
+  AFTER_HOURS
+}
+
 model User {
   id            String             @id @default(cuid())
   name          String
@@ -65,6 +76,8 @@ model AttendanceRecord {
   checkInLng        Float?
   checkOutLat       Float?
   checkOutLng       Float?
+  checkInTiming     CheckInTiming?
+  checkOutTiming    CheckOutTiming?
   verificationLevel VerificationLevel @default(REVIEW)
   confidenceScore   Int               @default(0)
   plannedTasks      String?
@@ -76,6 +89,15 @@ model AttendanceRecord {
 
   @@index([userId, checkedInAt])
   @@index([siteId])
+}
+
+model AttendanceSettings {
+  id          String   @id @default("default")
+  startHour   Int      @default(9)
+  startMinute Int      @default(0)
+  endHour     Int      @default(19)
+  endMinute   Int      @default(0)
+  updatedAt   DateTime @updatedAt
 }
 
 model DynamicQRSession {

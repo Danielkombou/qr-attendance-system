@@ -1,6 +1,7 @@
 import { AttendanceStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { formatAttendanceLocation, formatCheckInTimingLabel } from "@/lib/format/attendance-timing";
 import {
   formatClockTime,
   formatDurationMinutes,
@@ -36,6 +37,9 @@ export async function GET(request: NextRequest) {
           status: true,
           checkedInAt: true,
           workedMinutes: true,
+          checkInLat: true,
+          checkInLng: true,
+          checkInTiming: true,
           site: { select: { name: true } },
         },
       },
@@ -48,10 +52,18 @@ export async function GET(request: NextRequest) {
 
     let checkInTime: string | null = null;
     let duration: string | null = null;
+    let location: string | null = null;
+    let checkInNote: string | null = null;
 
     if (record && present) {
       checkInTime = formatClockTime(record.checkedInAt);
       duration = formatDurationMinutes(minutesSince(record.checkedInAt, now));
+      location = formatAttendanceLocation({
+        checkInLat: record.checkInLat,
+        checkInLng: record.checkInLng,
+        siteName: record.site?.name,
+      });
+      checkInNote = record.checkInTiming ? formatCheckInTimingLabel(record.checkInTiming) : null;
     }
 
     return {
@@ -64,7 +76,8 @@ export async function GET(request: NextRequest) {
       online: present,
       checkInTime,
       duration,
-      location: present ? (record.site?.name ?? "Office") : null,
+      location,
+      checkInNote,
     };
   });
 

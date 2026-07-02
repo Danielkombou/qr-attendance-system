@@ -1,6 +1,7 @@
 import { AttendanceStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { formatAttendanceLocation, formatCheckInTimingLabel } from "@/lib/format/attendance-timing";
 import { formatClockTime } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
 import { requireContext } from "@/lib/server/api-utils";
@@ -22,6 +23,9 @@ export async function GET(request: NextRequest) {
       id: true,
       checkedInAt: true,
       plannedTasks: true,
+      checkInLat: true,
+      checkInLng: true,
+      checkInTiming: true,
       site: { select: { name: true } },
     },
   });
@@ -34,7 +38,13 @@ export async function GET(request: NextRequest) {
           checkedInAt: open.checkedInAt.toISOString(),
           checkInTime: formatClockTime(open.checkedInAt),
           plannedTasks: open.plannedTasks,
-          siteName: open.site?.name ?? "Office",
+          siteName: open.site?.name ?? null,
+          location: formatAttendanceLocation({
+            checkInLat: open.checkInLat,
+            checkInLng: open.checkInLng,
+            siteName: open.site?.name,
+          }),
+          checkInNote: open.checkInTiming ? formatCheckInTimingLabel(open.checkInTiming) : null,
         }
       : null,
   });

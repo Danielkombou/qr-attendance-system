@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  classifyCheckIn,
+  formatCheckInTimingLabel,
+  formatCheckOutTimingNote,
+} from "@/lib/format/attendance-timing";
+import {
   computeAttendanceStreak,
   computeOnTimeStreak,
   dayKey,
@@ -13,6 +18,7 @@ import {
   roleLabel,
 } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
+import { getAttendanceSettings } from "@/lib/server/attendance-settings";
 import { requireContext } from "@/lib/server/api-utils";
 
 export const runtime = "nodejs";
@@ -20,6 +26,8 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
   if (error || !context) return error;
+
+  const workHours = await getAttendanceSettings();
 
   const user = await prisma.user.findUnique({
     where: { id: context.userId },
@@ -38,6 +46,8 @@ export async function GET(request: NextRequest) {
       checkedInAt: true,
       checkedOutAt: true,
       workedMinutes: true,
+      checkInTiming: true,
+      checkOutTiming: true,
     },
   });
 
@@ -49,28 +59,43 @@ export async function GET(request: NextRequest) {
   const avgHoursPerDay =
     completed.length > 0 ? (totalWorkedMinutes / completed.length / 60).toFixed(1) : "0.0";
 
-  const onTimeCount = records.filter((r) => isOnTimeCheckIn(r.checkedInAt)).length;
+  const onTimeCount = records.filter((r) =>
+    r.checkInTiming
+      ? r.checkInTiming === "ON_TIME" || r.checkInTiming === "EARLY"
+      : isOnTimeCheckIn(r.checkedInAt, workHours),
+  ).length;
   const onTimeRate = records.length > 0 ? Math.round((onTimeCount / records.length) * 100) : 0;
   const streak = computeAttendanceStreak(dayKeys);
-  const onTimeStreak = computeOnTimeStreak(records);
-  const earlyBirdDays = records.filter((r) => r.checkedInAt.getHours() < 8).length;
+  const onTimeStreak = computeOnTimeStreak(records, (date) => isOnTimeCheckIn(date, workHours));
+  const earlyBirdDays = records.filter((r) =>
+    r.checkInTiming ? r.checkInTiming === "EARLY" : classifyCheckIn(r.checkedInAt, workHours) === "EARLY",
+  ).length;
 
-  const recentAttendance = records.slice(0, 7).map((record) => ({
-    date: formatShortDate(record.checkedInAt),
-    checkIn: formatClockTime(record.checkedInAt),
-    checkOut: record.checkedOutAt ? formatClockTime(record.checkedOutAt) : "—",
-    duration:
-      record.workedMinutes != null
-        ? formatDurationMinutes(record.workedMinutes)
-        : record.checkedOutAt
-          ? formatDurationMinutes(
-              Math.floor(
-                (record.checkedOutAt.getTime() - record.checkedInAt.getTime()) / 60_000,
-              ),
-            )
-          : "—",
-    status: isOnTimeCheckIn(record.checkedInAt) ? ("On Time" as const) : ("Late" as const),
-  }));
+  const recentAttendance = records.slice(0, 7).map((record) => {
+    const timing =
+      record.checkInTiming ?? classifyCheckIn(record.checkedInAt, workHours);
+    const checkoutNote = record.checkOutTiming
+      ? formatCheckOutTimingNote(record.checkOutTiming)
+      : null;
+
+    return {
+      date: formatShortDate(record.checkedInAt),
+      checkIn: formatClockTime(record.checkedInAt),
+      checkOut: record.checkedOutAt ? formatClockTime(record.checkedOutAt) : "—",
+      duration:
+        record.workedMinutes != null
+          ? formatDurationMinutes(record.workedMinutes)
+          : record.checkedOutAt
+            ? formatDurationMinutes(
+                Math.floor(
+                  (record.checkedOutAt.getTime() - record.checkedInAt.getTime()) / 60_000,
+                ),
+              )
+            : "—",
+      status: formatCheckInTimingLabel(timing),
+      checkoutNote,
+    };
+  });
 
   const achievements = [
     {
@@ -88,7 +113,7 @@ export async function GET(request: NextRequest) {
     {
       id: "early-bird" as const,
       title: "Early Bird",
-      description: "Check in before 8 AM for 5 days",
+      description: "Check in before start time for 5 days",
       active: earlyBirdDays >= 5,
     },
     {

@@ -51,11 +51,7 @@ export function employeeId(userId: string, createdAt: Date): string {
   return `EMP-${createdAt.getFullYear()}-${userId.slice(-4).toUpperCase()}`;
 }
 
-export function isOnTimeCheckIn(checkedInAt: Date): boolean {
-  const hours = checkedInAt.getHours();
-  const minutes = checkedInAt.getMinutes();
-  return hours < 9 || (hours === 9 && minutes <= 15);
-}
+export { isOnTimeCheckIn } from "@/lib/format/attendance-timing";
 
 /** Consecutive calendar days (from today) with at least one on-time check-in. */
 export function computeOnTimeStreak(
