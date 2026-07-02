@@ -56,7 +56,11 @@ DATABASE_URL=postgresql://user:password@host:5432/attendx
 BETTER_AUTH_SECRET=replace-with-a-strong-secret
 BETTER_AUTH_URL=http://localhost:3001
 QR_TOKEN_SECRET=replace-with-a-strong-secret
+# Public IP or CIDR of your office router (comma-separated). See .env.example.
+ALLOWED_CHECKIN_IPS=
 ```
+
+If sign-up or API calls fail with `ETIMEDOUT` on Prisma, the app cannot reach PostgreSQL — check Neon/project status, firewall, and that `DATABASE_URL` is correct (try Neon’s pooled connection string from the dashboard).
 
 3. Apply Prisma migrations and seed
 
