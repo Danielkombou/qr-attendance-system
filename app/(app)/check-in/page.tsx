@@ -1,12 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { CircleCheckBig, Clock3, MapPin, QrCode } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { QrScannerCard } from "@/components/check-in/qr-scanner-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { PresenceDot } from "@/components/dashboard/presence-dot";
+import { Button } from "@/components/ui/button";
+import {
+  useAttendanceStatus,
+  useCheckInMutation,
+  useCheckOutMutation,
+  useProfile,
+  useSites,
+} from "@/lib/queries/hooks";
+import { useCheckInStore } from "@/lib/stores/check-in-store";
 
 function nowClock() {
   return new Date().toLocaleTimeString("en-US", {
@@ -34,37 +43,27 @@ async function getCoordinates() {
   });
 }
 
-type SiteOption = { id: string; name: string; allowedRadiusM: number };
-
-type AttendanceStatusResponse = {
-  checkedIn: boolean;
-  record: {
-    checkInTime: string;
-    plannedTasks: string | null;
-    location: string;
-    checkInNote: string | null;
-  } | null;
-};
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function CheckInPage() {
-  const [plannedTasks, setPlannedTasks] = useState("");
+  const { data: status } = useAttendanceStatus();
+  const { data: profile } = useProfile();
+  const { data: sites = [] } = useSites();
+  const checkInMutation = useCheckInMutation();
+  const checkOutMutation = useCheckOutMutation();
+
+  const plannedTasksDraft = useCheckInStore((s) => s.plannedTasksDraft);
+  const setPlannedTasksDraft = useCheckInStore((s) => s.setPlannedTasksDraft);
+  const clearPlannedTasksDraft = useCheckInStore((s) => s.clearPlannedTasksDraft);
+
   const [completedTasks, setCompletedTasks] = useState("");
   const [siteId, setSiteId] = useState("");
-  const [sites, setSites] = useState<SiteOption[]>([]);
-  const [submittingIn, setSubmittingIn] = useState(false);
-  const [submittingOut, setSubmittingOut] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => nowClock());
-  const [status, setStatus] = useState<AttendanceStatusResponse | null>(null);
-  const [coordsPreview, setCoordsPreview] = useState<string>("Waiting for GPS…");
-
-  const loadStatus = useCallback(async () => {
-    try {
-      const { data } = await axios.get<AttendanceStatusResponse>("/api/attendance/status");
-      setStatus(data);
-    } catch {
-      setStatus(null);
-    }
-  }, []);
+  const [coordsPreview, setCoordsPreview] = useState("Waiting for GPS…");
+  const [scanning, setScanning] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState(false);
 
   useEffect(() => {
     const timer = window.setInterval(() => setCurrentTime(nowClock()), 1000);
@@ -72,75 +71,60 @@ export default function CheckInPage() {
   }, []);
 
   useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
-
-  useEffect(() => {
-    axios
-      .get<{ sites: SiteOption[] }>("/api/sites")
-      .then((res) => {
-        const list = res.data.sites ?? [];
-        setSites(list);
-        if (list.length > 0) {
-          setSiteId((current) => (current ? current : list[0]!.id));
-        }
-      })
-      .catch(() => {
-        toast.error("Could not load sites");
-      });
-  }, []);
+    if (sites.length > 0 && !siteId) {
+      setSiteId(sites[0]!.id);
+    }
+  }, [sites, siteId]);
 
   useEffect(() => {
     getCoordinates()
       .then(({ latitude, longitude }) => {
         setCoordsPreview(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
       })
-      .catch(() => {
-        setCoordsPreview("GPS unavailable");
-      });
+      .catch(() => setCoordsPreview("GPS unavailable"));
   }, []);
 
-  async function submit(
-    path: "/api/attendance/check-in" | "/api/attendance/check-out",
-    payload: Record<string, unknown>,
-    labels: { loading: string; success: string; failure: string },
-  ) {
-    const toastId = toast.loading(labels.loading);
-    try {
-      const { latitude, longitude } = await getCoordinates();
-      setCoordsPreview(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
-      await axios.post(path, { latitude, longitude, ...payload });
-      toast.success(labels.success, { id: toastId });
-      await loadStatus();
-    } catch (err) {
-      const message =
-        err instanceof AxiosError
-          ? (err.response?.data as { error?: string } | undefined)?.error ?? labels.failure
-          : err instanceof Error
-            ? err.message
-            : labels.failure;
-      toast.error(labels.failure, { id: toastId, description: message });
-    }
+  const checkedIn = status?.checkedIn ?? false;
+  const employeeId = profile?.user.employeeId ?? "attendx:guest";
+  const qrValue = `attendx://checkin/${employeeId}`;
+
+  async function playScanAnimation() {
+    setScanning(true);
+    setScanSuccess(false);
+    await wait(1400);
+    setScanSuccess(true);
+    await wait(450);
+    setScanning(false);
+    setScanSuccess(false);
   }
 
   async function handleCheckIn() {
-    if (!plannedTasks.trim()) {
+    if (!plannedTasksDraft.trim()) {
       toast.warning("Add your plan for today before checking in.");
       return;
     }
 
-    setSubmittingIn(true);
-    await submit(
-      "/api/attendance/check-in",
-      { siteId: siteId.trim() || undefined, plannedTasks: plannedTasks.trim() },
-      {
-        loading: "Reading GPS and checking you in…",
-        success: "Checked in successfully.",
-        failure: "Check-in failed",
-      },
-    );
-    setPlannedTasks("");
-    setSubmittingIn(false);
+    try {
+      await playScanAnimation();
+      const { latitude, longitude } = await getCoordinates();
+      setCoordsPreview(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+      await checkInMutation.mutateAsync({
+        plannedTasks: plannedTasksDraft.trim(),
+        siteId: siteId.trim() || undefined,
+        latitude,
+        longitude,
+      });
+      toast.success("Checked in successfully.");
+      clearPlannedTasksDraft();
+    } catch (err) {
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Check-in failed"
+          : err instanceof Error
+            ? err.message
+            : "Check-in failed";
+      toast.error("Check-in failed", { description: message });
+    }
   }
 
   async function handleCheckOut() {
@@ -149,21 +133,29 @@ export default function CheckInPage() {
       return;
     }
 
-    setSubmittingOut(true);
-    await submit(
-      "/api/attendance/check-out",
-      { completedTasks: completedTasks.trim() },
-      {
-        loading: "Reading GPS and checking you out…",
-        success: "Checked out successfully.",
-        failure: "Check-out failed",
-      },
-    );
-    setCompletedTasks("");
-    setSubmittingOut(false);
+    try {
+      const { latitude, longitude } = await getCoordinates();
+      setCoordsPreview(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+      await checkOutMutation.mutateAsync({
+        completedTasks: completedTasks.trim(),
+        latitude,
+        longitude,
+      });
+      toast.success("Checked out successfully.");
+      setCompletedTasks("");
+    } catch (err) {
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Check-out failed"
+          : err instanceof Error
+            ? err.message
+            : "Check-out failed";
+      toast.error("Check-out failed", { description: message });
+    }
   }
 
-  const checkedIn = status?.checkedIn ?? false;
+  const submittingIn = checkInMutation.isPending || scanning;
+  const submittingOut = checkOutMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -176,13 +168,12 @@ export default function CheckInPage() {
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
-          <div className="flex flex-col items-center">
-            <div className="rounded-2xl border border-border/80 bg-card p-8 shadow-sm">
-              <div className="h-44 w-44 rounded-md bg-[linear-gradient(90deg,#000_50%,transparent_50%),linear-gradient(#000_50%,transparent_50%)] bg-size-[24px_24px] bg-repeat opacity-90" />
-            </div>
-            <p className="mt-5 text-sm text-muted-foreground">Display only — no scan required</p>
-            <p className="text-[2rem] font-semibold tracking-[0.04em] text-foreground">USER-12345</p>
-          </div>
+          <QrScannerCard
+            value={qrValue}
+            label={employeeId}
+            scanning={scanning}
+            scanSuccess={scanSuccess}
+          />
         </PanelCard>
 
         <div className="space-y-4">
@@ -241,8 +232,8 @@ export default function CheckInPage() {
               <span className="text-sm font-medium">What are you planning to work on today? *</span>
               <textarea
                 rows={3}
-                value={plannedTasks}
-                onChange={(event) => setPlannedTasks(event.target.value)}
+                value={plannedTasksDraft}
+                onChange={(event) => setPlannedTasksDraft(event.target.value)}
                 className="w-full rounded-lg border border-border bg-input-background px-3 py-2 text-foreground"
                 placeholder="Planned tasks for today..."
                 disabled={checkedIn}

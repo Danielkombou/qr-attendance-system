@@ -1,45 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useMemo } from "react";
 import { ArrowUpRight, Clock3, TrendingUp, Users } from "lucide-react";
 import { ActivityList } from "@/components/dashboard/activity-list";
 import { AvatarWithPresence } from "@/components/dashboard/presence-dot";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
-
-type MemberRow = {
-  id: string;
-  name: string;
-  initials: string;
-  status: "Present" | "Absent";
-  checkInTime: string | null;
-  duration: string | null;
-  location: string | null;
-  checkInNote: string | null;
-};
-
-type MembersResponse = {
-  summary: { total: number; present: number; absent: number };
-  members: MemberRow[];
-};
+import { useTeamMembers } from "@/lib/queries/hooks";
 
 export default function UserDashboardPage() {
-  const [data, setData] = useState<MembersResponse | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const { data: payload } = await axios.get<MembersResponse>("/api/team/members");
-      setData(payload);
-    } catch {
-      setData(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data, isLoading } = useTeamMembers();
 
   const presentMembers = useMemo(
     () => (data?.members ?? []).filter((m) => m.status === "Present"),
@@ -96,7 +67,9 @@ export default function UserDashboardPage() {
             </StatusPill>
           }
         >
-          {presentMembers.length === 0 ? (
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading check-ins…</p>
+          ) : presentMembers.length === 0 ? (
             <p className="text-sm text-muted-foreground">No one is checked in right now.</p>
           ) : (
             <ul className="divide-y divide-border">
