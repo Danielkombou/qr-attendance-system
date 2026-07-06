@@ -29,7 +29,12 @@ export default function ProfilePage() {
       <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-primary-foreground">
-            {data.user.initials}
+            {data.user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={data.user.image} alt="" className="size-full rounded-full object-cover" />
+            ) : (
+              data.user.initials
+            )}
           </span>
           <div>
             <p className="text-[1.75rem] font-semibold leading-tight text-foreground sm:text-[2rem]">

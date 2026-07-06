@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AxiosError } from "axios";
+import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { Button } from "@/components/ui/button";
+import { resizeImageToDataUrl } from "@/lib/client/resize-image";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
-import { useProfile, useUpdateWorkHoursMutation, useWorkHours } from "@/lib/queries/hooks";
+import { useProfile, useUpdateWorkHoursMutation, useUploadAvatarMutation, useWorkHours } from "@/lib/queries/hooks";
 
 function toInputTime(display: string): string {
   const match = display.match(/(\d{1,2}):(\d{2})/);
@@ -21,6 +23,8 @@ export default function SettingsPage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: workHours, isLoading: hoursLoading } = useWorkHours();
   const updateWorkHours = useUpdateWorkHoursMutation();
+  const uploadAvatar = useUploadAvatarMutation();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("19:00");
 
@@ -44,6 +48,21 @@ export default function SettingsPage() {
     }
   }
 
+  async function onAvatarPick(file: File | undefined) {
+    if (!file) return;
+    try {
+      const image = await resizeImageToDataUrl(file);
+      await uploadAvatar.mutateAsync(image);
+      toast.success("Profile photo updated.");
+    } catch (err) {
+      const message =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Upload failed."
+          : "Upload failed.";
+      toast.error(message);
+    }
+  }
+
   const user = profile?.user;
 
   return (
@@ -58,10 +77,32 @@ export default function SettingsPage() {
           <div className="h-20 animate-pulse rounded-xl bg-muted/50" aria-hidden />
         ) : (
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <UserAvatar initials={user.initials} size="md" className="size-16 text-xl" />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="group relative shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Upload profile photo"
+            >
+              <UserAvatar
+                initials={user.initials}
+                image={user.image}
+                size="lg"
+                className="size-16 text-xl"
+              />
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="size-5 text-white" aria-hidden />
+              </span>
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => void onAvatarPick(e.target.files?.[0])}
+            />
             <div className="min-w-0">
               <p className="truncate text-xl font-semibold text-foreground sm:text-2xl">{user.name}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{user.role}</p>
+              <p className="mt-1 text-sm font-medium text-muted-foreground">{user.role}</p>
               <p className="mt-1 truncate text-sm text-muted-foreground">{user.email}</p>
               <p className="mt-1 text-xs text-muted-foreground">ID: {user.employeeId}</p>
             </div>

@@ -2,6 +2,7 @@
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { UserAccountMenu } from "@/components/dashboard/user-account-menu";
+import { FeedbackWidget } from "@/components/feedback-widget";
 import {
   adminNavigation,
   userNavigation,
@@ -48,6 +49,7 @@ export function AppShell({ variant, children }: AppShellProps) {
         <div id="main-content" className="flex-1 px-3 py-5 sm:px-6 sm:py-6 lg:px-8" tabIndex={-1}>
           {children}
         </div>
+        <FeedbackWidget variant="fixed" />
       </SidebarInset>
     </SidebarProvider>
   );

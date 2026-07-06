@@ -1,15 +1,18 @@
 "use client";
 
+import { useRef } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import { FeatureCard } from "@/components/landing/feature-card";
 import { SiteNavbar } from "@/components/landing/site-navbar";
 import { features, stats, valuePoints } from "@/components/landing/data";
 import { Button } from "@/components/ui/button";
+import { FeedbackWidget } from "@/components/feedback-widget";
 import { useReducedMotion } from "motion/react";
 
 export default function Home() {
   const reduceMotion = useReducedMotion();
+  const ctaRef = useRef<HTMLDivElement>(null);
 
   return (
     <main id="main-content" className="min-h-screen text-foreground" tabIndex={-1}>
@@ -32,7 +35,10 @@ export default function Home() {
                 AttendX - the modern solution for organizations of all sizes.
               </p>
 
-              <div className="mt-7 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+              <div
+                ref={ctaRef}
+                className="mt-7 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4"
+              >
                 <Button
                   render={<Link href="/get-started" />}
                   nativeButton={false}
@@ -134,6 +140,8 @@ export default function Home() {
             <p>© 2026 AttendX. All rights reserved.</p>
           </div>
       </footer>
+
+      <FeedbackWidget variant="landing" ctaAnchorRef={ctaRef} />
     </main>
   );
 }
