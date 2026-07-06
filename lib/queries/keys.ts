@@ -15,4 +15,7 @@ export const queryKeys = {
   sites: {
     list: ["sites", "list"] as const,
   },
+  reports: {
+    analytics: ["reports", "analytics"] as const,
+  },
 } as const;

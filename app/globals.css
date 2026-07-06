@@ -70,24 +70,6 @@ a {
   }
 }
 
-html[data-theme-transition="active"]::view-transition-old(root) {
-  animation: none;
-}
-
-html[data-theme-transition="active"]::view-transition-new(root) {
-  animation: theme-sweep 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  z-index: 1;
-}
-
-@keyframes theme-sweep {
-  from {
-    clip-path: circle(0% at 0% 100%);
-  }
-  to {
-    clip-path: circle(150% at 0% 100%);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const feedback = await prisma.feedback.create({
     data: {
       message,
-      userId: context?.userId ?? null,
+      userId: context.userId || null,
     },
   });
 

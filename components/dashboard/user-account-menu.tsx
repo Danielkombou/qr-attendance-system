@@ -22,10 +22,6 @@ type UserAccountMenuProps = {
   placement?: "header" | "sidebar";
 };
 
-function shortRole(role: string) {
-  return role;
-}
-
 export function UserAccountMenu({ className, placement = "header" }: UserAccountMenuProps) {
   const { data: profile, isLoading } = useProfile();
   const signOut = useSignOut();
@@ -69,7 +65,7 @@ export function UserAccountMenu({ className, placement = "header" }: UserAccount
         )}
         aria-label={collapsed ? `${name}, account menu` : "Account menu"}
       >
-        <UserAvatar initials={initials} size={isSidebar ? "sm" : "md"} />
+        <UserAvatar initials={initials} image={user?.image} size={isSidebar ? "sm" : "md"} />
         {!collapsed ? (
           <>
             <span className={cn("min-w-0 flex-1", !isSidebar && "hidden min-[480px]:block")}>
@@ -95,7 +91,7 @@ export function UserAccountMenu({ className, placement = "header" }: UserAccount
         className="w-64 p-0"
       >
         <div className="flex items-center gap-3 rounded-t-lg bg-muted/50 px-3 py-3">
-          <UserAvatar initials={initials} />
+          <UserAvatar initials={initials} image={user?.image} />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">{name}</p>
             <p className="truncate text-xs text-muted-foreground">{email}</p>

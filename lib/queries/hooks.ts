@@ -38,6 +38,7 @@ type ProfileResponse = {
     name: string;
     email: string;
     role: string;
+    image: string | null;
     initials: string;
     employeeId: string;
   };
@@ -190,3 +191,47 @@ export function useUpdateWorkHoursMutation() {
     },
   });
 }
+
+export function useReports() {
+  return useQuery({
+    queryKey: queryKeys.reports.analytics,
+    queryFn: async () => {
+      const { data } = await axios.get<ReportsResponse>("/api/reports/analytics");
+      return data;
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useUploadAvatarMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (image: string) => {
+      const { data } = await axios.patch<{ user: ProfileResponse["user"] }>("/api/profile/avatar", {
+        image,
+      });
+      return data.user;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile.me });
+    },
+  });
+}
+
+type ReportsResponse = {
+  kpis: {
+    avgAttendance: string;
+    avgAttendanceTrend: string;
+    avgHoursPerDay: string;
+    avgHoursTrend: string;
+    onTimeRate: string;
+    onTimeTrend: string;
+    lateArrivals: string;
+    lateTrend: string;
+  };
+  weeklyBars: Array<{ label: string; present: number; late: number; absent: number }>;
+  byRole: Array<{ name: string; count: number; color: string }>;
+  monthlyTrend: Array<{ month: string; hours: number; onTime: number }>;
+  topPerformers: Array<{ rank: number; name: string; role: string; rate: string; hours: string }>;
+};
