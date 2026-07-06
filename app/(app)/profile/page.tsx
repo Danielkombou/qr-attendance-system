@@ -6,6 +6,7 @@ import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { useProfile } from "@/lib/queries/hooks";
+import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 
 export default function ProfilePage() {
   const { data, isLoading, isError } = useProfile();
@@ -21,8 +22,8 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">My Profile</h1>
-        <p className="text-muted-foreground">View your attendance history and statistics</p>
+        <h1 className={pageTitleClass}>My Profile</h1>
+        <p className={pageSubtitleClass}>View your attendance history and statistics</p>
       </header>
 
       <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
@@ -48,13 +49,13 @@ export default function ProfilePage() {
         <MetricCard title="Current Streak" value={data.stats.currentStreak} icon={<Medal className="h-5 w-5" />} />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
         <PanelCard title="Recent Attendance">
           {data.recentAttendance.length === 0 ? (
             <p className="text-sm text-muted-foreground">No attendance records yet. Check in to get started.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left text-sm">
+              <table className="w-full min-w-[32rem] text-left text-sm">
                 <thead className="text-muted-foreground">
                   <tr>
                     <th className="py-2 font-medium">Date</th>

@@ -8,6 +8,7 @@ import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { useTeamMembers } from "@/lib/queries/hooks";
+import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 
 export default function UserDashboardPage() {
   const { data, isLoading } = useTeamMembers();
@@ -47,8 +48,8 @@ export default function UserDashboardPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Your attendance at a glance</p>
+        <h1 className={pageTitleClass}>Dashboard</h1>
+        <p className={pageSubtitleClass}>Your attendance at a glance</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -74,17 +75,20 @@ export default function UserDashboardPage() {
           ) : (
             <ul className="divide-y divide-border">
               {presentMembers.slice(0, 5).map((entry) => (
-                <li key={entry.id} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
+                <li
+                  key={entry.id}
+                  className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
                     <AvatarWithPresence initials={entry.initials} online />
-                    <div>
-                      <span className="block font-medium text-foreground">{entry.name}</span>
+                    <div className="min-w-0">
+                      <span className="block truncate font-medium text-foreground">{entry.name}</span>
                       {entry.location ? (
-                        <span className="text-sm text-muted-foreground">{entry.location}</span>
+                        <span className="block truncate text-sm text-muted-foreground">{entry.location}</span>
                       ) : null}
                     </div>
                   </div>
-                  <span className="text-right text-sm">
+                  <span className="text-sm sm:text-right">
                     <span className="block font-medium text-foreground">{entry.duration ?? "—"}</span>
                     <span className="text-muted-foreground">
                       {entry.checkInTime ?? "—"}
