@@ -31,7 +31,10 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
   function pick(next: string) {
     if (next === theme) return;
-    run(() => setTheme(next));
+    const dark =
+      next === "dark" ||
+      (next === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    run(() => setTheme(next), dark);
   }
 
   const active = mounted ? (theme === "system" ? "system" : (resolvedTheme ?? theme)) : "light";
