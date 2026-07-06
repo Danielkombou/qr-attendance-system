@@ -42,6 +42,7 @@ model User {
   role          Role               @default(USER)
   attendance    AttendanceRecord[]
   qrSessions    DynamicQRSession[] @relation("QrIssuer")
+  feedback      Feedback[]
   sessions      Session[]
   accounts      Account[]
   createdAt     DateTime           @default(now())
@@ -110,6 +111,16 @@ model DynamicQRSession {
   createdAt   DateTime  @default(now())
 
   @@index([expiresAt])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  message   String
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Session {
