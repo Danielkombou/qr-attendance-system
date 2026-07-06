@@ -22,7 +22,9 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
     if (typeof document !== "undefined" && "startViewTransition" in document) {
       document.documentElement.dataset.themeTransition = "active";
-      document.startViewTransition(() => {
+      (
+        document as Document & { startViewTransition: (cb: () => void) => void }
+      ).startViewTransition(() => {
         apply();
         queueMicrotask(() => {
           delete document.documentElement.dataset.themeTransition;

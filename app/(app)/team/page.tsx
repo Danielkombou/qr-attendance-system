@@ -6,6 +6,7 @@ import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
 import { PresenceDot } from "@/components/dashboard/presence-dot";
 import { useTeamMembers } from "@/lib/queries/hooks";
 import { semanticSurfaces } from "@/lib/ui/semantic-surfaces";
+import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 import { cn } from "@/lib/utils";
 
 type StatusFilter = "all" | "Present" | "Absent";
@@ -32,8 +33,8 @@ export default function TeamPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">Team Members</h1>
-        <p className="text-muted-foreground">View team attendance and status</p>
+        <h1 className={pageTitleClass}>Team Members</h1>
+        <p className={pageSubtitleClass}>View team attendance and status</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
@@ -93,8 +94,8 @@ export default function TeamPage() {
                   member.status === "Present" ? semanticSurfaces.success : semanticSurfaces.neutral,
                 )}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-3">
                     <span className="relative inline-flex shrink-0">
                       <span
                         className={cn(
@@ -108,9 +109,9 @@ export default function TeamPage() {
                       </span>
                       <PresenceDot online={member.online} className="absolute -bottom-0.5 -right-0.5" />
                     </span>
-                    <div>
-                      <p className="font-semibold text-foreground">{member.name}</p>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-foreground">{member.name}</p>
+                      <p className="truncate text-sm text-muted-foreground">{member.role}</p>
                     </div>
                   </div>
                   <span
@@ -125,7 +126,7 @@ export default function TeamPage() {
                   </span>
                 </div>
 
-                <p className="mt-3 text-sm text-muted-foreground">• {member.email}</p>
+                <p className="mt-3 truncate text-sm text-muted-foreground">• {member.email}</p>
 
                 {member.status === "Present" && member.checkInTime ? (
                   <div className="mt-3 space-y-1.5 text-sm text-[var(--surface-success-fg)]">

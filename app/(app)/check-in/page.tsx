@@ -16,6 +16,7 @@ import {
   useSites,
 } from "@/lib/queries/hooks";
 import { useCheckInStore } from "@/lib/stores/check-in-store";
+import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 
 function nowClock() {
   return new Date().toLocaleTimeString("en-US", {
@@ -160,13 +161,13 @@ export default function CheckInPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">Check In/Out</h1>
-        <p className="text-muted-foreground">
+        <h1 className={pageTitleClass}>Check In/Out</h1>
+        <p className={pageSubtitleClass}>
           Your location is recorded with each check-in. Early arrivals earn bonus credit; late arrivals are noted.
         </p>
       </header>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
+      <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1fr_0.95fr]">
         <PanelCard title="QR Code" rightSlot={<QrCode className="h-5 w-5 text-muted-foreground" />}>
           <QrScannerCard
             value={qrValue}
@@ -200,7 +201,7 @@ export default function CheckInPage() {
               <p className="inline-flex items-center gap-2 text-muted-foreground">
                 <Clock3 className="h-4 w-4" aria-hidden /> Current Time
               </p>
-              <p className="text-[1.9rem] font-semibold text-foreground">{currentTime}</p>
+              <p className="text-2xl font-semibold text-foreground sm:text-[1.9rem]">{currentTime}</p>
 
               <p className="inline-flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" aria-hidden /> Location

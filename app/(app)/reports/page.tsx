@@ -1,6 +1,7 @@
 import { CalendarDays, Download, TrendingUp } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
+import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 
 const weeklyBars = [
   { label: "Mon", present: 42, late: 3, absent: 2 },
@@ -37,16 +38,14 @@ const deptTotal = departments.reduce((sum, d) => sum + d.count, 0);
 export default function ReportsPage() {
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <span>
-          <h1 className="text-[2.2rem] font-semibold tracking-[-0.03em] text-foreground">
-            Reports & Analytics
-          </h1>
-          <p className="text-muted-foreground">Attendance insights and trends</p>
+          <h1 className={pageTitleClass}>Reports & Analytics</h1>
+          <p className={pageSubtitleClass}>Attendance insights and trends</p>
         </span>
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm"
+          className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm sm:w-auto"
         >
           <Download className="h-4 w-4" aria-hidden />
           Export Report
@@ -84,7 +83,7 @@ export default function ReportsPage() {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
         <PanelCard
           title="Weekly Attendance"
           rightSlot={<CalendarDays className="h-5 w-5 text-muted-foreground" aria-hidden />}
@@ -158,7 +157,7 @@ export default function ReportsPage() {
         </PanelCard>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-2">
+      <section className="grid gap-4 lg:grid-cols-2">
         <PanelCard title="Monthly Trends">
           <div className="h-56 rounded-xl border border-border/80 bg-muted/30 p-4">
             <div className="grid h-full grid-cols-4 items-end gap-6">
