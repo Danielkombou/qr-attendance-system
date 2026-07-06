@@ -23,7 +23,7 @@ type UserAccountMenuProps = {
 };
 
 function shortRole(role: string) {
-  return role.toLowerCase().includes("admin") ? "Admin" : "Member";
+  return role;
 }
 
 export function UserAccountMenu({ className, placement = "header" }: UserAccountMenuProps) {
@@ -36,7 +36,7 @@ export function UserAccountMenu({ className, placement = "header" }: UserAccount
   const initials = user?.initials ?? "…";
   const name = user?.name ?? "Loading…";
   const email = user?.email ?? "";
-  const role = user ? shortRole(user.role) : "—";
+  const role = user?.role ?? "—";
   const isSidebar = placement === "sidebar";
   const collapsed = isSidebar && sidebarState === "collapsed";
 

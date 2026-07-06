@@ -15,7 +15,6 @@ import {
   formatShortDate,
   initialsFromName,
   isOnTimeCheckIn,
-  roleLabel,
 } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
 import { getAttendanceSettings } from "@/lib/server/attendance-settings";
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: context.userId },
-    select: { id: true, name: true, email: true, role: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, image: true, createdAt: true },
   });
 
   if (!user) {
@@ -129,7 +128,8 @@ export async function GET(request: NextRequest) {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: roleLabel(user.role),
+      role: user.role,
+      image: user.image,
       initials: initialsFromName(user.name),
       employeeId: employeeId(user.id, user.createdAt),
     },

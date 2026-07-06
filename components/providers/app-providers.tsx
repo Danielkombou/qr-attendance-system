@@ -2,6 +2,7 @@
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { ThemeTransitionProvider } from "@/components/theme-transition-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createQueryClient } from "@/lib/queries/query-client";
 
@@ -14,7 +15,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider delay={0}>{children}</TooltipProvider>
+      <ThemeTransitionProvider>
+        <TooltipProvider delay={0}>{children}</TooltipProvider>
+      </ThemeTransitionProvider>
     </QueryClientProvider>
   );
 }

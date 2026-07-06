@@ -7,7 +7,6 @@ import {
   formatDurationMinutes,
   initialsFromName,
   minutesSince,
-  roleLabel,
   startOfDay,
 } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
@@ -70,7 +69,7 @@ export async function GET(request: NextRequest) {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: roleLabel(user.role),
+      role: user.role,
       initials: initialsFromName(user.name),
       status: present ? ("Present" as const) : ("Absent" as const),
       online: present,
