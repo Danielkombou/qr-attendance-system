@@ -1,15 +1,13 @@
-import { Award, Crown, Sunrise, Target } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { achievementCardClass } from "@/lib/ui/semantic-surfaces";
 import { cn } from "@/lib/utils";
 
 export type AchievementIcon = "perfect-week" | "hundred-days" | "early-bird" | "consistency-king";
 
-const iconMap: Record<AchievementIcon, LucideIcon> = {
-  "perfect-week": Target,
-  "hundred-days": Award,
-  "early-bird": Sunrise,
-  "consistency-king": Crown,
+const iconEmoji: Record<AchievementIcon, string> = {
+  "perfect-week": "🎯",
+  "hundred-days": "💯",
+  "early-bird": "🌅",
+  "consistency-king": "👑",
 };
 
 type AchievementCardProps = {
@@ -21,25 +19,35 @@ type AchievementCardProps = {
 };
 
 export function AchievementCard({ title, description, active, icon, className }: AchievementCardProps) {
-  const Icon = iconMap[icon];
-
   return (
     <article className={achievementCardClass(active, className)}>
       <div className="flex items-start gap-3">
         <span
           className={cn(
-            "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg",
-            active
-              ? "bg-[var(--surface-success-fg)]/10 text-[var(--surface-success-fg)]"
-              : "bg-muted text-muted-foreground",
+            "inline-flex h-10 w-10 shrink-0 items-center justify-center text-[1.65rem] leading-none",
+            !active && "grayscale opacity-45",
           )}
           aria-hidden
         >
-          <Icon className="h-5 w-5" strokeWidth={1.75} />
+          {iconEmoji[icon]}
         </span>
         <div className="min-w-0">
-          <p className="font-medium text-foreground">{title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p
+            className={cn(
+              "font-medium",
+              active ? "text-[var(--surface-success-fg)]" : "text-muted-foreground",
+            )}
+          >
+            {title}
+          </p>
+          <p
+            className={cn(
+              "mt-1 text-sm",
+              active ? "text-[var(--surface-success-fg)]/85" : "text-muted-foreground/90",
+            )}
+          >
+            {description}
+          </p>
         </div>
       </div>
     </article>

@@ -55,6 +55,7 @@ export function SignUpForm() {
           required
           value={name}
           onChange={(event) => setName(event.target.value)}
+          placeholder="Jane Doe"
           className="h-11 rounded-lg border border-border bg-input-background px-3"
         />
       </label>
@@ -65,6 +66,7 @@ export function SignUpForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@company.com"
           className="h-11 rounded-lg border border-border bg-input-background px-3"
         />
       </label>
@@ -76,6 +78,7 @@ export function SignUpForm() {
           minLength={8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          placeholder="At least 8 characters"
           className="h-11 rounded-lg border border-border bg-input-background px-3"
         />
       </label>

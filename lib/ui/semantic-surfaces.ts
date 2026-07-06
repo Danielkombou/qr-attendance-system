@@ -19,7 +19,9 @@ export function surfaceClass(tone: SemanticTone, className?: string) {
 export function achievementCardClass(active: boolean, className?: string) {
   return cn(
     "rounded-xl border p-4 shadow-sm transition-colors",
-    active ? semanticSurfaces.success : "border-border/80 bg-card",
+    active
+      ? semanticSurfaces.success
+      : "border-border/70 bg-muted/35 text-muted-foreground",
     className,
   );
 }
