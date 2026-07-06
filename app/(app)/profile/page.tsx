@@ -2,6 +2,7 @@
 
 import { CalendarDays, Clock3, Medal, TrendingUp } from "lucide-react";
 import { AchievementCard, type AchievementIcon } from "@/components/dashboard/achievement-card";
+import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
@@ -28,14 +29,7 @@ export default function ProfilePage() {
 
       <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-primary-foreground">
-            {data.user.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={data.user.image} alt="" className="size-full rounded-full object-cover" />
-            ) : (
-              data.user.initials
-            )}
-          </span>
+          <UserAvatar initials={data.user.initials} image={data.user.image} size="lg" />
           <div>
             <p className="text-[1.75rem] font-semibold leading-tight text-foreground sm:text-[2rem]">
               {data.user.name}

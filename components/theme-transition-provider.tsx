@@ -14,7 +14,6 @@ const WIPE_MS = 520;
 
 export function ThemeTransitionProvider({ children }: { children: React.ReactNode }) {
   const [wiping, setWiping] = useState(false);
-  const [applyTheme, setApplyTheme] = useState<(() => void) | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
 
   const run = useCallback((apply: () => void) => {
@@ -22,14 +21,9 @@ export function ThemeTransitionProvider({ children }: { children: React.ReactNod
       apply();
       return;
     }
+    apply();
     setSize({ w: window.innerWidth, h: window.innerHeight });
-    setApplyTheme(() => apply);
-    setWiping(true);
-  }, []);
-
-  const finish = useCallback(() => {
-    setWiping(false);
-    setApplyTheme(null);
+    requestAnimationFrame(() => setWiping(true));
   }, []);
 
   return (
@@ -37,7 +31,7 @@ export function ThemeTransitionProvider({ children }: { children: React.ReactNod
       {children}
       {typeof document !== "undefined" &&
         createPortal(
-          <AnimatePresence>
+          <AnimatePresence onExitComplete={() => setWiping(false)}>
             {wiping && size.w > 0 ? (
               <motion.div
                 key="theme-wipe"
@@ -50,10 +44,7 @@ export function ThemeTransitionProvider({ children }: { children: React.ReactNod
                 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: WIPE_MS / 1000, ease: [0.32, 0.72, 0, 1] }}
-                onAnimationStart={() => {
-                  applyTheme?.();
-                }}
-                onAnimationComplete={finish}
+                onAnimationComplete={() => setWiping(false)}
               />
             ) : null}
           </AnimatePresence>,

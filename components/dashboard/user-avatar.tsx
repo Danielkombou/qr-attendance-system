@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type UserAvatarProps = {
@@ -24,7 +23,8 @@ export function UserAvatar({ initials, image, size = "md", className }: UserAvat
   if (image) {
     return (
       <span className={base}>
-        <Image src={image} alt="" width={64} height={64} className="size-full object-cover" unoptimized />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt="" className="size-full object-cover" />
       </span>
     );
   }
