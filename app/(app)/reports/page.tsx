@@ -16,6 +16,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import { downloadAttendanceCsv } from "@/lib/client/download-attendance-csv";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 import { useReports } from "@/lib/queries/hooks";
@@ -47,7 +48,29 @@ export default function ReportsPage() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading reports…</p>;
+    return (
+      <div className="space-y-6">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <span>
+            <h1 className={pageTitleClass}>Reports & Analytics</h1>
+            <p className={pageSubtitleClass}>Attendance insights and trends</p>
+          </span>
+        </header>
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-[132px] rounded-2xl" />
+          ))}
+        </section>
+        <section className="grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
+          <Skeleton className="h-[320px] rounded-2xl" />
+          <Skeleton className="h-[320px] rounded-2xl" />
+        </section>
+        <section className="grid gap-4 lg:grid-cols-2">
+          <Skeleton className="h-[300px] rounded-2xl" />
+          <Skeleton className="h-[300px] rounded-2xl" />
+        </section>
+      </div>
+    );
   }
 
   if (isError || !data) {
