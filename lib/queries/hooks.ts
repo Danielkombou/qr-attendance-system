@@ -99,6 +99,7 @@ export function useTeamMembers() {
       const { data } = await axios.get<MembersResponse>("/api/team/members");
       return data;
     },
+    staleTime: 30_000,
   });
 }
 
@@ -119,6 +120,7 @@ export function useAdminUsers(params: {
       return data;
     },
     placeholderData: (previous) => previous,
+    staleTime: 20_000,
   });
 }
 
@@ -185,6 +187,7 @@ export function useProfile() {
       const { data } = await axios.get<ProfileResponse>("/api/profile");
       return data;
     },
+    staleTime: 30_000,
   });
 }
 

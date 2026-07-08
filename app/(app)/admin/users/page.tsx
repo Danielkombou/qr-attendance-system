@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { downloadAttendanceCsv } from "@/lib/client/download-attendance-csv";
 import {
   useAdminUsers,
@@ -152,9 +153,19 @@ export default function AdminUsersPage() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <StatSummaryCard label="Total Users" value={summary?.total ?? "—"} />
-        <StatSummaryCard label="Present" value={summary?.present ?? "—"} tone="success" />
-        <StatSummaryCard label="Absent" value={summary?.absent ?? "—"} tone="warning" />
+        {isLoading ? (
+          <>
+            <Skeleton className="h-[132px] rounded-2xl" />
+            <Skeleton className="h-[132px] rounded-2xl" />
+            <Skeleton className="h-[132px] rounded-2xl" />
+          </>
+        ) : (
+          <>
+            <StatSummaryCard label="Total Users" value={summary?.total ?? "—"} />
+            <StatSummaryCard label="Present" value={summary?.present ?? "—"} tone="success" />
+            <StatSummaryCard label="Absent" value={summary?.absent ?? "—"} tone="warning" />
+          </>
+        )}
       </section>
 
       <section className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-5">
@@ -196,7 +207,11 @@ export default function AdminUsersPage() {
         </div>
 
         {isLoading ? (
-          <p className="mt-6 text-sm text-muted-foreground">Loading users…</p>
+          <div className="mt-6 space-y-3">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <Skeleton key={idx} className="h-11 rounded-xl" />
+            ))}
+          </div>
         ) : isError ? (
           <p className="mt-6 text-sm text-muted-foreground">Could not load users.</p>
         ) : (
