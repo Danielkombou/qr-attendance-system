@@ -115,7 +115,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="hidden overflow-x-auto sm:block">
-                <table className="w-full min-w-[32rem] text-left text-sm">
+                <table className="w-full min-w-lg text-left text-sm">
                 <thead className="text-muted-foreground">
                   <tr>
                     <th className="py-2 font-medium">Date</th>

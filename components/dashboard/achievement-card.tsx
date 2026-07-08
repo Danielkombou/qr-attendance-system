@@ -43,7 +43,7 @@ export function AchievementCard({ title, description, active, icon, className }:
           <p
             className={cn(
               "font-medium",
-              active ? "text-[var(--surface-success-fg)]" : "text-muted-foreground",
+              active ? "text-(--surface-success-fg)" : "text-muted-foreground",
             )}
           >
             {title}
@@ -51,7 +51,7 @@ export function AchievementCard({ title, description, active, icon, className }:
           <p
             className={cn(
               "mt-1 text-sm",
-              active ? "text-[var(--surface-success-fg)]/85" : "text-muted-foreground/90",
+              active ? "text-(--surface-success-fg)/85" : "text-muted-foreground/90",
             )}
           >
             {description}
