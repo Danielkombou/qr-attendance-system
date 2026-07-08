@@ -219,7 +219,7 @@ export default function AdminUsersPage() {
                         <td className="px-4 py-3 text-foreground">{user.role}</td>
                         <td className="px-4 py-3">
                           <StatusPill variant={user.status === "Present" ? "success" : "warning"}>
-                            {user.status.toLowerCase()}
+                            {user.status}
                           </StatusPill>
                         </td>
                         <td className="px-4 py-3">
