@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { Download, Pencil, Search, Trash2, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { Button } from "@/components/ui/button";
+import { downloadAttendanceCsv } from "@/lib/client/download-attendance-csv";
 import {
   useAdminUsers,
   useCreateAdminUserMutation,
@@ -23,28 +24,6 @@ function todayInputValue() {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-async function downloadAttendanceCsv(date: string) {
-  const response = await axios.get("/api/admin/attendance/export", {
-    params: { date },
-    responseType: "blob",
-  });
-  const contentType = String(response.headers["content-type"] ?? "");
-  if (contentType.includes("application/json")) {
-    const text = await (response.data as Blob).text();
-    const parsed = JSON.parse(text) as { error?: string };
-    throw new Error(parsed.error ?? "Export failed.");
-  }
-  const blob = new Blob([response.data], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `attendance-${date}.csv`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
 }
 
 export default function AdminUsersPage() {
@@ -90,11 +69,7 @@ export default function AdminUsersPage() {
       await downloadAttendanceCsv(exportDate);
       toast.success("Attendance CSV downloaded.");
     } catch (err) {
-      const message =
-        err instanceof AxiosError
-          ? (err.response?.data as { error?: string } | undefined)?.error ?? "Export failed."
-          : "Export failed.";
-      toast.error(message);
+      toast.error(err instanceof Error ? err.message : "Export failed.");
     } finally {
       setExporting(false);
     }
