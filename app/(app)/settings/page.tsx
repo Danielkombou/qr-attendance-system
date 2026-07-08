@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { resizeImageToDataUrl } from "@/lib/client/resize-image";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 import { useProfile, useUpdateWorkHoursMutation, useUploadAvatarMutation, useWorkHours } from "@/lib/queries/hooks";
+import { isAdminRole } from "@/lib/roles";
 
 function toInputTime(display: string): string {
   const match = display.match(/(\d{1,2}):(\d{2})/);
@@ -28,6 +29,9 @@ export default function SettingsPage() {
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("19:00");
 
+  const isAdmin = isAdminRole(profile?.user.role);
+  const canEditHours = isAdmin;
+
   useEffect(() => {
     if (workHours) {
       setStartTime(toInputTime(workHours.startTime));
@@ -36,9 +40,13 @@ export default function SettingsPage() {
   }, [workHours]);
 
   async function saveWorkHours() {
+    if (!canEditHours) {
+      toast.error("Admin role required to save working hours.");
+      return;
+    }
     try {
       await updateWorkHours.mutateAsync({ startTime, endTime });
-      toast.success("Working hours updated.");
+      toast.success("Organization working hours updated.");
     } catch (err) {
       const message =
         err instanceof AxiosError
@@ -110,10 +118,11 @@ export default function SettingsPage() {
         )}
       </section>
 
-      <PanelCard title="Working Hours">
+      <PanelCard title="Organization Working Hours">
         <p className="mb-4 text-sm text-muted-foreground">
-          Default is 9:00 AM – 7:00 PM. Early check-ins earn bonus credit; late check-ins and after-hours
-          check-outs are recorded.
+          {canEditHours
+            ? "Set the org-wide work window used for early, on-time, late, and after-hours classification. Default is 9:00 AM – 7:00 PM."
+            : "These hours are set by admins and apply to early, on-time, late, and after-hours check classification."}
         </p>
         {hoursLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
@@ -124,8 +133,9 @@ export default function SettingsPage() {
               <input
                 type="time"
                 value={startTime}
+                disabled={!canEditHours}
                 onChange={(event) => setStartTime(event.target.value)}
-                className="h-11 w-full rounded-lg border border-border bg-input-background px-3 text-foreground"
+                className="h-11 w-full rounded-lg border border-border bg-input-background px-3 text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
             <label className="grid gap-1.5">
@@ -133,20 +143,26 @@ export default function SettingsPage() {
               <input
                 type="time"
                 value={endTime}
+                disabled={!canEditHours}
                 onChange={(event) => setEndTime(event.target.value)}
-                className="h-11 w-full rounded-lg border border-border bg-input-background px-3 text-foreground"
+                className="h-11 w-full rounded-lg border border-border bg-input-background px-3 text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
           </div>
         )}
-        <Button
-          className="mt-4"
-          disabled={updateWorkHours.isPending || hoursLoading}
-          onClick={() => void saveWorkHours()}
-        >
-          {updateWorkHours.isPending ? "Saving…" : "Save Working Hours"}
-        </Button>
-        <p className="mt-2 text-xs text-muted-foreground">Admin role required to save changes.</p>
+        {canEditHours ? (
+          <Button
+            className="mt-4"
+            disabled={updateWorkHours.isPending || hoursLoading}
+            onClick={() => void saveWorkHours()}
+          >
+            {updateWorkHours.isPending ? "Saving…" : "Save Working Hours"}
+          </Button>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Only admins can update organization working hours.
+          </p>
+        )}
       </PanelCard>
     </div>
   );
