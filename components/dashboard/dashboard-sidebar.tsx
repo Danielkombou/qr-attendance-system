@@ -46,6 +46,13 @@ function SidebarBrand() {
 
 export function DashboardSidebar({ items }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  function closeMobileSidebar() {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" className="border-sidebar-border">
@@ -74,6 +81,7 @@ export function DashboardSidebar({ items }: DashboardSidebarProps) {
                           "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground",
                       )}
                       render={<Link href={item.href} />}
+                      onClick={closeMobileSidebar}
                     >
                       <Icon className="size-[1.125rem] shrink-0" aria-hidden />
                       <span className="truncate group-data-[collapsible=icon]:hidden">{item.label}</span>

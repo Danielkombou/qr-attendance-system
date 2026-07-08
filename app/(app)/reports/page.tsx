@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { CalendarDays, Download, TrendingUp } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis } from "recharts";
 import { toast } from "sonner";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { Button } from "@/components/ui/button";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { downloadAttendanceCsv } from "@/lib/client/download-attendance-csv";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
 import { useReports } from "@/lib/queries/hooks";
@@ -45,26 +54,41 @@ export default function ReportsPage() {
     return <p className="text-sm text-muted-foreground">Reports unavailable.</p>;
   }
 
-  const deptTotal = data.byRole.reduce((sum, d) => sum + d.count, 0) || 1;
-  const roleGradient =
-    data.byRole.length > 0
-      ? data.byRole
-          .reduce<{ parts: string[]; cursor: number }>(
-            (acc, dept) => {
-              const pct = (dept.count / deptTotal) * 100;
-              const next = acc.cursor + pct;
-              acc.parts.push(`${dept.color} ${acc.cursor}% ${next}%`);
-              acc.cursor = next;
-              return acc;
-            },
-            { parts: [], cursor: 0 },
-          )
-          .parts.join(", ")
-      : "var(--chart-dept-1) 0% 100%";
+  const weeklyChartData = data.weeklyBars.map((day) => ({
+    day: day.label,
+    present: day.present,
+    late: day.late,
+    absent: day.absent,
+  }));
+  const byRoleChartData = data.byRole.map((item) => ({
+    role: item.name,
+    count: item.count,
+    fill: item.color,
+  }));
+  const monthlyChartData = data.monthlyTrend.map((point) => ({
+    month: point.month,
+    avgHours: point.hours,
+    onTimeRate: point.onTime,
+  }));
 
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const };
+
+  const weeklyConfig = {
+    present: { label: "Present", color: "var(--chart-dept-4)" },
+    late: { label: "Late", color: "var(--surface-warning-fg)" },
+    absent: { label: "Absent", color: "var(--chart-bar)" },
+  } satisfies ChartConfig;
+
+  const monthlyConfig = {
+    avgHours: { label: "Avg Hours", color: "var(--chart-dept-1)" },
+    onTimeRate: { label: "On-Time %", color: "var(--chart-dept-4)" },
+  } satisfies ChartConfig;
+
+  const roleConfig = {
+    count: { label: "Check-ins", color: "var(--chart-dept-1)" },
+  } satisfies ChartConfig;
 
   return (
     <div className="space-y-6">
@@ -138,132 +162,77 @@ export default function ReportsPage() {
           title="Weekly Attendance"
           rightSlot={<CalendarDays className="h-5 w-5 text-muted-foreground" aria-hidden />}
         >
-          <div className="h-64 rounded-xl border border-border/80 bg-muted/30 p-4">
-            <div className="grid h-full grid-cols-5 items-end gap-2 sm:gap-4">
-              {data.weeklyBars.map((day, index) => {
-                const total = Math.max(1, day.present + day.late + day.absent);
-                const scale = 100 / total;
-                return (
-                  <div key={day.label} className="flex h-full flex-col justify-end">
-                    <div className="flex h-[85%] flex-col justify-end gap-0.5">
-                      {(
-                        [
-                          { key: "present", height: day.present * scale, className: "bg-[var(--chart-dept-4)]" },
-                          {
-                            key: "late",
-                            height: day.late * scale,
-                            className: "bg-[var(--surface-warning-fg)]",
-                          },
-                          { key: "absent", height: day.absent * scale, className: "bg-[var(--chart-bar)]" },
-                        ] as const
-                      ).map((segment) => (
-                        <motion.div
-                          key={segment.key}
-                          className={`rounded-t-sm ${segment.className}`}
-                          initial={reduceMotion ? false : { height: 0 }}
-                          animate={{ height: `${segment.height}%` }}
-                          transition={{
-                            ...transition,
-                            delay: reduceMotion ? 0 : 0.15 + index * 0.08,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <p className="mt-2 text-center text-xs text-muted-foreground sm:text-sm">{day.label}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--chart-dept-4)]" />
-              Present
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--surface-warning-fg)]" />
-              Late
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--chart-bar)]" />
-              Absent
-            </span>
-          </div>
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...transition, delay: reduceMotion ? 0 : 0.12 }}
+            className="rounded-xl border border-border/80 bg-muted/30 p-2"
+          >
+            <ChartContainer config={weeklyConfig} className="h-64 w-full">
+              <BarChart accessibilityLayer data={weeklyChartData} margin={{ left: 8, right: 8, top: 6 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="present" stackId="attendance" fill="var(--color-present)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="late" stackId="attendance" fill="var(--color-late)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="absent" stackId="attendance" fill="var(--color-absent)" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+          </motion.div>
         </PanelCard>
 
         <PanelCard title="By Role">
           {data.byRole.length === 0 ? (
             <p className="text-sm text-muted-foreground">No check-ins today yet.</p>
           ) : (
-            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-              <motion.div
-                className="relative h-36 w-36 shrink-0 rounded-full"
-                style={{ background: `conic-gradient(${roleGradient})` }}
-                aria-hidden
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.86 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ ...transition, delay: reduceMotion ? 0 : 0.2 }}
-              >
-                <div className="absolute inset-[18%] rounded-full bg-card" />
-              </motion.div>
-              <ul className="w-full space-y-3">
-                {data.byRole.map((dept) => (
-                  <li key={dept.name} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="inline-flex items-center gap-2 text-foreground">
-                      <span
-                        className="h-2.5 w-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: dept.color }}
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ ...transition, delay: reduceMotion ? 0 : 0.18 }}
+              className="rounded-xl border border-border/80 bg-muted/30 p-2"
+            >
+              <ChartContainer config={roleConfig} className="h-64 w-full">
+                <PieChart accessibilityLayer>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        formatter={(value, _name, item) => [value, item.payload.role as string]}
                       />
-                      {dept.name}
-                    </span>
-                    <span className="font-medium text-foreground">{dept.count}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    }
+                  />
+                  <Pie data={byRoleChartData} dataKey="count" nameKey="role" innerRadius={54} outerRadius={86}>
+                    {byRoleChartData.map((entry) => (
+                      <Cell key={entry.role} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartLegend content={<ChartLegendContent nameKey="role" />} />
+                </PieChart>
+              </ChartContainer>
+            </motion.div>
           )}
         </PanelCard>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <PanelCard title="Monthly Trends">
-          <div className="h-56 rounded-xl border border-border/80 bg-muted/30 p-4">
-            <div className="grid h-full grid-cols-4 items-end gap-3 sm:gap-6">
-              {data.monthlyTrend.map((point, index) => (
-                <div key={point.month} className="flex h-full flex-col justify-end gap-1">
-                  <motion.div
-                    className="rounded-t-sm bg-[var(--chart-dept-1)]"
-                    initial={reduceMotion ? false : { height: 0 }}
-                    animate={{ height: `${point.hours}%` }}
-                    transition={{
-                      ...transition,
-                      delay: reduceMotion ? 0 : 0.18 + index * 0.08,
-                    }}
-                  />
-                  <motion.div
-                    className="rounded-t-sm bg-[var(--chart-dept-4)]"
-                    initial={reduceMotion ? false : { height: 0 }}
-                    animate={{ height: `${point.onTime}%` }}
-                    transition={{
-                      ...transition,
-                      delay: reduceMotion ? 0 : 0.26 + index * 0.08,
-                    }}
-                  />
-                  <p className="mt-2 text-center text-xs text-muted-foreground sm:text-sm">{point.month}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--chart-dept-1)]" />
-              Avg Hours
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--chart-dept-4)]" />
-              On-Time %
-            </span>
-          </div>
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...transition, delay: reduceMotion ? 0 : 0.2 }}
+            className="rounded-xl border border-border/80 bg-muted/30 p-2"
+          >
+            <ChartContainer config={monthlyConfig} className="h-56 w-full">
+              <BarChart accessibilityLayer data={monthlyChartData} margin={{ left: 8, right: 8, top: 6 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="avgHours" fill="var(--color-avgHours)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="onTimeRate" fill="var(--color-onTimeRate)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+          </motion.div>
         </PanelCard>
 
         <PanelCard title="Top Performers">
