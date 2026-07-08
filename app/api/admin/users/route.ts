@@ -141,13 +141,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Omit request headers so the admin session is not replaced by a new signup session.
     await auth.api.signUpEmail({
       body: { name, email, password, rememberMe: false },
-      headers: request.headers,
     });
 
+    const created = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      select: { id: true },
+    });
+
+    if (!created) {
+      return NextResponse.json({ error: "User created but could not be loaded" }, { status: 500 });
+    }
+
     const user = await prisma.user.update({
-      where: { email },
+      where: { id: created.id },
       data: { role },
       select: { id: true, name: true, email: true, role: true },
     });
