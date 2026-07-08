@@ -20,7 +20,6 @@ export const userNavigation: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Gauge },
   { label: "Check In", href: "/check-in", icon: QrCode },
   { label: "My Profile", href: "/profile", icon: UserRound },
-  { label: "Team", href: "/team", icon: Users },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];

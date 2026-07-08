@@ -14,7 +14,6 @@ import {
   useUpdateUserRoleMutation,
 } from "@/lib/queries/hooks";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
-import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 10;
 
