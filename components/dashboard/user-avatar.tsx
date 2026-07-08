@@ -33,7 +33,7 @@ export function UserAvatar({ initials, image, size = "md", className }: UserAvat
     <span
       className={cn(
         base,
-        "bg-linear-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground",
+        "border border-border/80 bg-muted text-foreground",
       )}
       aria-hidden
     >
