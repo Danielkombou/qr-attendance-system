@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { PanelCard } from "@/components/dashboard/panel-card";
 import { StatSummaryCard } from "@/components/dashboard/stat-summary-card";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
@@ -46,14 +46,10 @@ export default function AdminDashboardPage() {
         <p className="mb-4 text-sm text-muted-foreground">
           Search users, change roles, add accounts, and export daily attendance from the Users page.
         </p>
-        <Button
-          render={<Link href="/admin/users" />}
-          nativeButton={false}
-          className="rounded-xl"
-        >
+        <Link href="/admin/users" className={buttonVariants({ className: "rounded-xl" })}>
           <Users className="h-4 w-4" aria-hidden />
           Open Users
-        </Button>
+        </Link>
       </PanelCard>
     </div>
   );

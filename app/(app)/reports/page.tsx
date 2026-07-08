@@ -31,7 +31,7 @@ function todayInputValue() {
 export default function ReportsPage() {
   const { data, isLoading, isError } = useReports();
   const reduceMotion = useReducedMotion();
-  const [exportDate, setExportDate] = useState(todayInputValue);
+  const [exportDate, setExportDate] = useState(() => todayInputValue());
   const [exporting, setExporting] = useState(false);
 
   async function onExport() {

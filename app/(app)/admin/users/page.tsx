@@ -30,7 +30,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [exportDate, setExportDate] = useState(todayInputValue);
+  const [exportDate, setExportDate] = useState(() => todayInputValue());
   const [exporting, setExporting] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [editUserId, setEditUserId] = useState<string | null>(null);
@@ -53,6 +53,15 @@ export default function AdminUsersPage() {
   const createUser = useCreateAdminUserMutation();
   const updateRole = useUpdateUserRoleMutation();
   const deleteUser = useDeleteUserMutation();
+
+  function resetAddUserForm() {
+    setForm({ name: "", email: "", password: "", role: "USER" });
+  }
+
+  function closeAddUserModal() {
+    setAddOpen(false);
+    resetAddUserForm();
+  }
 
   const pagination = data?.pagination;
   const users = data?.users ?? [];
@@ -81,8 +90,7 @@ export default function AdminUsersPage() {
     try {
       await createUser.mutateAsync(form);
       toast.success("User created.", { id: toastId });
-      setAddOpen(false);
-      setForm({ name: "", email: "", password: "", role: "USER" });
+      closeAddUserModal();
     } catch (err) {
       const message =
         err instanceof AxiosError
@@ -300,7 +308,7 @@ export default function AdminUsersPage() {
                 </h2>
                 <p className="text-sm text-muted-foreground">Create an account for a team member.</p>
               </div>
-              <Button type="button" size="icon-sm" variant="ghost" onClick={() => setAddOpen(false)}>
+              <Button type="button" size="icon-sm" variant="ghost" onClick={closeAddUserModal}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -349,7 +357,7 @@ export default function AdminUsersPage() {
                 </select>
               </label>
               <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="outline" onClick={() => setAddOpen(false)}>
+                <Button type="button" variant="outline" onClick={closeAddUserModal}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={createUser.isPending}>
