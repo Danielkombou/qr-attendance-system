@@ -77,12 +77,93 @@ type WorkHoursResponse = {
   };
 };
 
+export type AdminUserRow = {
+  id: string;
+  name: string;
+  email: string;
+  role: "USER" | "ADMIN";
+  initials: string;
+  status: "Present" | "Absent";
+};
+
+type AdminUsersResponse = {
+  summary: { total: number; present: number; absent: number };
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+  users: AdminUserRow[];
+};
+
 export function useTeamMembers() {
   return useQuery({
     queryKey: queryKeys.team.members,
     queryFn: async () => {
       const { data } = await axios.get<MembersResponse>("/api/team/members");
       return data;
+    },
+  });
+}
+
+export function useAdminUsers(params: {
+  q: string;
+  page: number;
+  limit?: number;
+  status?: "all" | "Present" | "Absent";
+}) {
+  const limit = params.limit ?? 10;
+  const status = params.status ?? "all";
+  return useQuery({
+    queryKey: queryKeys.admin.users({ q: params.q, page: params.page, limit, status }),
+    queryFn: async () => {
+      const { data } = await axios.get<AdminUsersResponse>("/api/admin/users", {
+        params: { q: params.q || undefined, page: params.page, limit, status },
+      });
+      return data;
+    },
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useCreateAdminUserMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      name: string;
+      email: string;
+      password: string;
+      role?: "USER" | "ADMIN";
+    }) => {
+      const { data } = await axios.post<{ user: AdminUserRow }>("/api/admin/users", payload);
+      return data.user;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.admin.usersRoot });
+    },
+  });
+}
+
+export function useUpdateUserRoleMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { userId: string; role: "USER" | "ADMIN" }) => {
+      const { data } = await axios.patch(`/api/admin/users/${payload.userId}/role`, {
+        role: payload.role,
+      });
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.admin.usersRoot });
+    },
+  });
+}
+
+export function useDeleteUserMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { data } = await axios.delete(`/api/admin/users/${userId}`);
+      return data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.admin.usersRoot });
     },
   });
 }
