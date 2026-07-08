@@ -15,19 +15,26 @@ type Metrics = { totalUsers: number; activeNow: number; todayCheckIns: number };
 export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
 
-  const loadMetrics = useCallback(async () => {
-    try {
-      const { data } = await axios.get<{ metrics: Metrics }>("/api/dashboard/admin");
-      setMetrics(data.metrics);
-    } catch {
-      setMetrics(null);
-      toast.error("Could not load dashboard metrics.");
-    }
-  }, []);
-
   useEffect(() => {
-    void loadMetrics();
-  }, [loadMetrics]);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { data } = await axios.get<{ metrics: Metrics }>("/api/dashboard/admin");
+        if (!cancelled) {
+          setMetrics(data.metrics);
+        }
+      } catch {
+        if (!cancelled) {
+          setMetrics(null);
+          toast.error("Could not load dashboard metrics.");
+        }
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-6">

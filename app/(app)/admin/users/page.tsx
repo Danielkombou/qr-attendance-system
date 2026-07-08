@@ -64,11 +64,11 @@ export default function AdminUsersPage() {
   }
 
   const pagination = data?.pagination;
-  const users = data?.users ?? [];
+  const users = data?.users;
   const summary = data?.summary;
 
   const editingUser = useMemo(
-    () => users.find((u) => u.id === editUserId) ?? null,
+    () => users?.find((u) => u.id === editUserId) ?? null,
     [users, editUserId],
   );
 
@@ -213,14 +213,14 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {users.length === 0 ? (
+                  {(users?.length ?? 0) === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                         No users found.
                       </td>
                     </tr>
                   ) : (
-                    users.map((user) => (
+                    users?.map((user) => (
                       <tr key={user.id} className="bg-card">
                         <td className="px-4 py-3 font-semibold text-foreground">{user.name}</td>
                         <td className="px-4 py-3 text-foreground">{user.email}</td>
