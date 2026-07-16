@@ -13,6 +13,7 @@ import {
   useAdminUsers,
   useCreateAdminUserMutation,
   useDeleteUserMutation,
+  useProfile,
   useUpdateUserRoleMutation,
 } from "@/lib/queries/hooks";
 import { pageSubtitleClass, pageTitleClass } from "@/lib/ui/page-styles";
@@ -36,6 +37,9 @@ export default function AdminUsersPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editUserId, setEditUserId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "USER" as "USER" | "ADMIN" });
+
+  const { data: profile } = useProfile();
+  const currentUserId = profile?.user.id;
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -104,11 +108,14 @@ export default function AdminUsersPage() {
   async function onSetRole(userId: string, role: "USER" | "ADMIN") {
     const toastId = toast.loading(role === "ADMIN" ? "Promoting user…" : "Demoting user…");
     try {
-      await updateRole.mutateAsync({ userId, role });
+      const result = await updateRole.mutateAsync({ userId, role });
       toast.success(role === "ADMIN" ? "User is now an admin." : "User is now a standard user.", {
         id: toastId,
       });
       setEditUserId(null);
+      if (result.redirectTo) {
+        window.location.assign(result.redirectTo);
+      }
     } catch (err) {
       const message =
         err instanceof AxiosError
