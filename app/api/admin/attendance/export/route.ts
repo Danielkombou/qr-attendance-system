@@ -40,11 +40,8 @@ function toDateParam(date: Date) {
 }
 
 export async function GET(request: NextRequest) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminGuard = requireAdminRole(context.role);
-  if (adminGuard) return adminGuard;
 
   const dayStart = parseExportDate(request.nextUrl.searchParams.get("date"));
   if (!dayStart) {

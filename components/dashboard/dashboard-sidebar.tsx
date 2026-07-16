@@ -23,16 +23,17 @@ import { cn } from "@/lib/utils";
 
 type DashboardSidebarProps = {
   items: DashboardNavItem[];
+  homeHref?: string;
 };
 
-function SidebarBrand() {
+function SidebarBrand({ homeHref = "/dashboard" }: { homeHref?: string }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
   if (collapsed) {
     return (
       <Link
-        href="/dashboard"
+        href={homeHref}
         className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"
         aria-label="AttendX home"
       >
@@ -41,10 +42,10 @@ function SidebarBrand() {
     );
   }
 
-  return <BrandLogo href="/dashboard" size="sm" className="px-1" />;
+  return <BrandLogo href={homeHref} size="sm" className="px-1" />;
 }
 
-export function DashboardSidebar({ items }: DashboardSidebarProps) {
+export function DashboardSidebar({ items, homeHref = "/dashboard" }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -57,7 +58,7 @@ export function DashboardSidebar({ items }: DashboardSidebarProps) {
   return (
     <Sidebar collapsible="icon" variant="sidebar" className="border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border/80 p-4 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
-        <SidebarBrand />
+        <SidebarBrand homeHref={homeHref} />
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4 group-data-[collapsible=icon]:px-2">

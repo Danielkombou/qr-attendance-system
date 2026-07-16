@@ -19,6 +19,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getAttendanceSettings } from "@/lib/server/attendance-settings";
 import { requireContext } from "@/lib/server/api-utils";
+import { applyAttendxSessionCookies } from "@/lib/server/session-cookies";
 
 export const runtime = "nodejs";
 
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
     },
   ];
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     user: {
       id: user.id,
       name: user.name,
@@ -142,4 +143,11 @@ export async function GET(request: NextRequest) {
     recentAttendance,
     achievements,
   });
+
+  // Heal stale attendx_role cookies after promote/demote without requiring a full re-login.
+  if (context.role !== user.role) {
+    applyAttendxSessionCookies(response, { userId: user.id, role: user.role });
+  }
+
+  return response;
 }
