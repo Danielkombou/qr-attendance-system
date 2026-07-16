@@ -35,6 +35,7 @@ type AttendanceStatusResponse = {
 
 type ProfileResponse = {
   user: {
+    id: string;
     name: string;
     email: string;
     role: string;
@@ -146,13 +147,19 @@ export function useUpdateUserRoleMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { userId: string; role: "USER" | "ADMIN" }) => {
-      const { data } = await axios.patch(`/api/admin/users/${payload.userId}/role`, {
+      const { data } = await axios.patch<{
+        user: AdminUserRow;
+        redirectTo: string | null;
+      }>(`/api/admin/users/${payload.userId}/role`, {
         role: payload.role,
       });
       return data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.admin.usersRoot });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.usersRoot }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.profile.me }),
+      ]);
     },
   });
 }

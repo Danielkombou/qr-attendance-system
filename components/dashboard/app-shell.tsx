@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { SessionRoleSync } from "@/components/dashboard/session-role-sync";
 import { UserAccountMenu } from "@/components/dashboard/user-account-menu";
 import { FeedbackWidget } from "@/components/feedback-widget";
 import {
@@ -33,8 +34,12 @@ export function AppShell({ variant, children }: AppShellProps) {
 
   return (
     <SidebarProvider defaultOpen>
-      <DashboardSidebar items={items} />
-      <SidebarInset className="min-h-svh bg-transparent">
+      <SessionRoleSync />
+      <DashboardSidebar
+        items={items}
+        homeHref={variant === "admin" ? "/admin/dashboard" : "/dashboard"}
+      />
+      <SidebarInset className="min-h-svh min-w-0 overflow-x-hidden bg-transparent">
         <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border/80 bg-card/85 px-3 backdrop-blur-md supports-backdrop-filter:bg-card/70 sm:gap-3 sm:px-6">
           <SidebarTrigger className="-ml-1 shrink-0 text-foreground" />
           <Separator orientation="vertical" className="hidden h-4 md:block" />
@@ -46,7 +51,11 @@ export function AppShell({ variant, children }: AppShellProps) {
             <UserAccountMenu placement="header" className="md:hidden" />
           </div>
         </header>
-        <div id="main-content" className="flex-1 px-3 py-5 sm:px-6 sm:py-6 lg:px-8" tabIndex={-1}>
+        <div
+          id="main-content"
+          className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-3 py-5 sm:px-6 sm:py-6 lg:px-8"
+          tabIndex={-1}
+        >
           {children}
         </div>
         <FeedbackWidget variant="fixed" />
