@@ -223,8 +223,61 @@ export default function AdminUsersPage() {
           <p className="mt-6 text-sm text-muted-foreground">Could not load users.</p>
         ) : (
           <>
-            <div className="mt-5 overflow-x-auto rounded-xl border border-border/80">
-              <table className="w-full min-w-[720px] text-left text-sm">
+            <div className="mt-5 space-y-3 sm:hidden">
+              {(users?.length ?? 0) === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">No users found.</p>
+              ) : (
+                users?.map((user) => (
+                  <article
+                    key={user.id}
+                    className="rounded-xl border border-border/80 bg-card p-4 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-foreground">{user.name}</p>
+                        <p className="mt-0.5 truncate text-sm text-muted-foreground">{user.email}</p>
+                      </div>
+                      <StatusPill variant={user.status === "Present" ? "success" : "warning"}>
+                        {user.status}
+                      </StatusPill>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <p className="text-sm text-foreground">
+                        Role: <span className="font-medium">{user.role}</span>
+                        {user.id === currentUserId ? (
+                          <span className="ml-2 text-xs text-muted-foreground">(you)</span>
+                        ) : null}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="ghost"
+                          aria-label={`Edit ${user.name}`}
+                          onClick={() => setEditUserId(user.id)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          aria-label={`Delete ${user.name}`}
+                          disabled={deleteUser.isPending || user.id === currentUserId}
+                          onClick={() => void onDeleteUser(user.id, user.name)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="mt-5 hidden overflow-x-auto rounded-xl border border-border/80 sm:block">
+              <table className="w-full min-w-[640px] text-left text-sm">
                 <thead className="bg-muted/70 text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Name</th>
@@ -246,7 +299,12 @@ export default function AdminUsersPage() {
                       <tr key={user.id} className="bg-card">
                         <td className="px-4 py-3 font-semibold text-foreground">{user.name}</td>
                         <td className="px-4 py-3 text-foreground">{user.email}</td>
-                        <td className="px-4 py-3 text-foreground">{user.role}</td>
+                        <td className="px-4 py-3 text-foreground">
+                          {user.role}
+                          {user.id === currentUserId ? (
+                            <span className="ml-2 text-xs text-muted-foreground">(you)</span>
+                          ) : null}
+                        </td>
                         <td className="px-4 py-3">
                           <StatusPill variant={user.status === "Present" ? "success" : "warning"}>
                             {user.status}
@@ -269,7 +327,7 @@ export default function AdminUsersPage() {
                               variant="ghost"
                               className="text-destructive hover:text-destructive"
                               aria-label={`Delete ${user.name}`}
-                              disabled={deleteUser.isPending}
+                              disabled={deleteUser.isPending || user.id === currentUserId}
                               onClick={() => void onDeleteUser(user.id, user.name)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -429,18 +487,23 @@ export default function AdminUsersPage() {
                   disabled={updateRole.isPending}
                   onClick={() => void onSetRole(editingUser.id, "USER")}
                 >
-                  Make user
+                  {editingUser.id === currentUserId ? "Demote yourself" : "Make user"}
                 </Button>
               )}
               <Button
                 type="button"
                 variant="destructive"
-                disabled={deleteUser.isPending}
+                disabled={deleteUser.isPending || editingUser.id === currentUserId}
                 onClick={() => void onDeleteUser(editingUser.id, editingUser.name)}
               >
                 Delete user
               </Button>
             </div>
+            {editingUser.id === currentUserId ? (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Changing your own role updates your session immediately and redirects you.
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}

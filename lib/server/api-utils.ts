@@ -1,4 +1,4 @@
-import { Role, type Role as RoleType } from "@/lib/roles";
+import { Role, type Role as AppRole } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -24,7 +24,7 @@ export function requireContext(request: NextRequest) {
   return { error: null, context };
 }
 
-export function requireAdminRole(role: RoleType) {
+export function requireAdminRole(role: AppRole) {
   return isAdmin(role) ? null : forbidden("Admin role required");
 }
 
