@@ -1,15 +1,14 @@
 "use client";
 
-import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useThemeTransition } from "@/components/theme-transition-provider";
 import { cn } from "@/lib/utils";
 
 type ThemeToggleProps = {
@@ -24,18 +23,9 @@ const options = [
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const { run } = useThemeTransition();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-
-  function pick(next: string) {
-    if (next === theme) return;
-    const dark =
-      next === "dark" ||
-      (next === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    run(() => setTheme(next), dark);
-  }
 
   const active = mounted ? (theme === "system" ? "system" : (resolvedTheme ?? theme)) : "light";
   const ActiveIcon = active === "dark" ? Moon : active === "system" ? Monitor : Sun;
@@ -54,7 +44,13 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-36">
         {options.map(({ value, label, icon: Icon }) => (
-          <DropdownMenuItem key={value} className="gap-2" onClick={() => pick(value)}>
+          <DropdownMenuItem
+            key={value}
+            className="gap-2"
+            onClick={() => {
+              if (value !== theme) setTheme(value);
+            }}
+          >
             <Icon className="size-4" aria-hidden />
             {label}
             {theme === value ? <span className="ml-auto text-xs text-muted-foreground">✓</span> : null}

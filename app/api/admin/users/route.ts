@@ -5,8 +5,9 @@ import { auth } from "@/lib/auth";
 import { initialsFromName, startOfDay } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/lib/roles";
-import { badRequest, requireAdminRole, requireContext } from "@/lib/server/api-utils";
+import { badRequest, requireAdminContext } from "@/lib/server/api-utils";
 import { authErrorResponse } from "@/lib/server/auth-errors";
+import { applyAttendxSessionCookies } from "@/lib/server/session-cookies";
 
 export const runtime = "nodejs";
 
