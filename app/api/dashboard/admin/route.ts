@@ -2,17 +2,14 @@ import { AttendanceStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminRole, requireContext } from "@/lib/server/api-utils";
+import { requireAdminContext } from "@/lib/server/api-utils";
 import { withCache } from "@/lib/server/cache";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminGuard = requireAdminRole(context.role);
-  if (adminGuard) return adminGuard;
 
   const payload = await withCache("dashboard:admin", 15_000, async () => {
     const now = new Date();

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { formatWorkHoursTime } from "@/lib/format/attendance-timing";
 import { getAttendanceSettings, upsertAttendanceSettings } from "@/lib/server/attendance-settings";
-import { badRequest, requireAdminRole, requireContext } from "@/lib/server/api-utils";
+import { badRequest, requireAdminContext, requireContext } from "@/lib/server/api-utils";
 
 export const runtime = "nodejs";
 
@@ -33,11 +33,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminError = requireAdminRole(context.role);
-  if (adminError) return adminError;
 
   const body = await request.json().catch(() => null);
   const start = parseTime(body?.startTime);

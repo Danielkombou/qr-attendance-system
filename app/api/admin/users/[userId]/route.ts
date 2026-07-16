@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/lib/roles";
-import { forbidden, requireAdminRole, requireContext } from "@/lib/server/api-utils";
+import { forbidden, requireAdminContext } from "@/lib/server/api-utils";
 
 export const runtime = "nodejs";
 
@@ -10,11 +10,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> },
 ) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminGuard = requireAdminRole(context.role);
-  if (adminGuard) return adminGuard;
 
   const { userId } = await params;
 

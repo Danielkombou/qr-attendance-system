@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { formatCheckInTimingLabel } from "@/lib/format/attendance-timing";
 import { formatClockTime, formatDurationMinutes, startOfDay } from "@/lib/format/display";
 import { prisma } from "@/lib/prisma";
-import { badRequest, requireAdminRole, requireContext } from "@/lib/server/api-utils";
+import { badRequest, requireAdminContext } from "@/lib/server/api-utils";
 
 export const runtime = "nodejs";
 
