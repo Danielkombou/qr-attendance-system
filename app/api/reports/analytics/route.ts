@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const workHours = await getAttendanceSettings();
   const analytics = await buildReportsAnalytics(workHours);

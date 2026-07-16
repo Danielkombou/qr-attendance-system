@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 /** Re-sync attendx_role cookie from the database (fixes stale role after promote/demote). */
 export async function POST(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const user = await prisma.user.findUnique({
     where: { id: context.userId },

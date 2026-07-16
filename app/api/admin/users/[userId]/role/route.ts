@@ -10,7 +10,7 @@ export async function PATCH(
   { params }: { params: Promise<{ userId: string }> },
 ) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const { userId } = await params;
   const body = await request.json().catch(() => null);

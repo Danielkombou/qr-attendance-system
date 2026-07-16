@@ -5,7 +5,7 @@ import { requireContext } from "@/lib/server/api-utils";
 
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const sites = await prisma.site.findMany({
     where: { isActive: true },

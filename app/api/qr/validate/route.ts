@@ -6,7 +6,7 @@ import { hashToken, verifyQRToken } from "@/lib/server/qr-token";
 
 export async function POST(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const token = body?.token as string | undefined;

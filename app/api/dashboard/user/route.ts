@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const payload = await withCache(`dashboard:user:${context.userId}`, 15_000, async () => {
     const now = new Date();

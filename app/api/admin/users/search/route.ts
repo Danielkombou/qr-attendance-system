@@ -5,7 +5,7 @@ import { requireAdminContext } from "@/lib/server/api-utils";
 
 export async function GET(request: NextRequest) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const q = (request.nextUrl.searchParams.get("q") ?? "").trim();
   if (!q) {

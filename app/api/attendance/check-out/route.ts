@@ -13,7 +13,7 @@ function toFloat(value: unknown): number | null {
 
 export async function POST(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const completedTasks = (body?.completedTasks as string | undefined)?.trim();

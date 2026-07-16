@@ -20,7 +20,7 @@ function parseTime(value: unknown): { hour: number; minute: number } | null {
 
 export async function GET(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const hours = await getAttendanceSettings();
   return NextResponse.json({
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const start = parseTime(body?.startTime);

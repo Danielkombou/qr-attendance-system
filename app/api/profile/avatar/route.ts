@@ -10,7 +10,7 @@ const MAX_IMAGE_BYTES = 120_000;
 
 export async function PATCH(request: NextRequest) {
   const { error, context } = requireContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const image = body?.image as string | undefined;

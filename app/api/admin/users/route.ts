@@ -22,7 +22,7 @@ function parsePositiveInt(value: string | null, fallback: number) {
 
 export async function GET(request: NextRequest) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const q = (request.nextUrl.searchParams.get("q") ?? "").trim();
   const statusFilter = (request.nextUrl.searchParams.get("status") ?? "all").trim();
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const name = typeof body?.name === "string" ? body.name.trim() : "";

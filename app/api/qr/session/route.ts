@@ -6,7 +6,7 @@ import { createQRToken } from "@/lib/server/qr-token";
 
 export async function POST(request: NextRequest) {
   const { error, context } = await requireAdminContext(request);
-  if (error || !context) return error;
+  if (!context) return error;
 
   const body = await request.json().catch(() => null);
   const ttlSeconds = Math.max(15, Math.min(300, Number(body?.ttlSeconds ?? 45)));
