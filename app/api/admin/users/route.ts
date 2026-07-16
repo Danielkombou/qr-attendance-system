@@ -21,11 +21,8 @@ function parsePositiveInt(value: string | null, fallback: number) {
 }
 
 export async function GET(request: NextRequest) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminGuard = requireAdminRole(context.role);
-  if (adminGuard) return adminGuard;
 
   const q = (request.nextUrl.searchParams.get("q") ?? "").trim();
   const statusFilter = (request.nextUrl.searchParams.get("status") ?? "all").trim();
@@ -121,11 +118,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { error, context } = requireContext(request);
+  const { error, context } = await requireAdminContext(request);
   if (error || !context) return error;
-
-  const adminGuard = requireAdminRole(context.role);
-  if (adminGuard) return adminGuard;
 
   const body = await request.json().catch(() => null);
   const name = typeof body?.name === "string" ? body.name.trim() : "";
@@ -162,7 +156,13 @@ export async function POST(request: NextRequest) {
       select: { id: true, name: true, email: true, role: true },
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    // Re-assert the admin session in case signup touched cookies.
+    const response = NextResponse.json({ user }, { status: 201 });
+    applyAttendxSessionCookies(response, {
+      userId: context.userId,
+      role: context.role,
+    });
+    return response;
   } catch (err) {
     return authErrorResponse(err, "Unable to create user");
   }
